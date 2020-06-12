@@ -1,0 +1,31 @@
+<RCC>
+    <qresource prefix="/">
+        <file>pufferpic.jpg</file>
+        <file>countries/us.png</file>
+        <file>countries/nz.png</file>
+        <file>countries/japan.png</file>
+        <file>countries/germany.png</file>
+        <file>countries/gb.png</file>
+        <file>countries/france.png</file>
+        <file>countries/china.png</file>
+        <file>countries/canada.png</file>
+        <file>countries/brazil.png</file>
+        <file>countries/australia.png</file>
+        <file>icons/Wrench.png</file>
+        <file>icons/Previous.png</file>
+        <file>icons/Helpsymbol.png</file>
+        <file>icons/Exit.png</file>
+        <file>icons/Earth.png</file>
+        <file>icons/Download.png</file>
+        <file>icons/Down.png</file>
+        <file>icons/Computer.png</file>
+        <file>icons/About.png</file>
+        <file>icons/monitor.png</file>
+        <file>128.png</file>
+        <file>icons/sf_logo.png</file>
+        <file>icons/paypal_logo.png</file>
+        <file>icons/Check_256x256.png</file>
+        <file>icons/Cancel_256x256.png</file>
+        <file>icons/Upload.png</file>
+    </qresource>
+</RCC>
