@@ -3,25 +3,26 @@ version: "1.0"
 summary: Set the daily photo of Bing or of Windows Spotlight as your wallpaper
 description: |
   This Application is a variant which you can automatically set the daily photo of Bing or of Windows Spotlight as your Wallpaper on your Linux machine.
-
 confinement: strict
 grade: stable
 icon: icon/mainicon.png
 base: core18
 
+architectures:
+  - build-on: amd64
+    run-on: amd64
+
 apps:
   dailydesktopwallpaperplus:
     command: DailyDesktopWallpaperPlus
-    autostart: DailyDesktopWallpaperPlus.desktop
-    environment:
-      "DISABLE_WAYLAND": "1"
-    desktop: /usr/share/applications/DailyDesktopWallpaperPlus.desktop
-
-plugs:
-  dailydesktopwallpaperplus-home:
-    interface: home
-  dailydesktopwallpaperplus-network:
-    interface: network
+    plugs:
+        - home
+        - network
+        - opengl
+        - x11
+        - desktop
+        - network-manager
+        - desktop-legacy
 
 parts:
   dailydesktopwallpaperplus:
@@ -33,7 +34,5 @@ parts:
        - build-essential
        - qtbase5-dev
        - dpkg-dev
-       - make
-       - qmake
-       - qt5-default
-
+     stage-packages:
+       - libqt5gui5
