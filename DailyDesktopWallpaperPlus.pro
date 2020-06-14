@@ -52,3 +52,14 @@ FORMS    += mainwindow.ui \
 
 RESOURCES += \
     mainicon.qrc
+
+
+# rules to set the target directory /usr by create a SNAP.
+isEmpty(PREFIX){
+ PREFIX = /usr
+}
+
+BINDIR  = $$PREFIX/bin
+DATADIR = $$PREFIX/share
+
+target.path = $$BINDIR
