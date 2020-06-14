@@ -63,3 +63,5 @@ BINDIR  = $$PREFIX/bin
 DATADIR = $$PREFIX/share
 
 target.path = $$BINDIR
+
+INSTALLS += target
