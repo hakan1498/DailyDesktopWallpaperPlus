@@ -15,6 +15,8 @@ architectures:
 apps:
   dailydesktopwallpaperplus:
     command: DailyDesktopWallpaperPlus
+    environment:
+       DISABLE_WAYLAND: 1
     plugs:
         - home
         - network
@@ -24,15 +26,35 @@ apps:
         - network-manager
         - desktop-legacy
 
+plugs:
+  gtk-3-themes:
+    interface: content
+    target: $SNAP/data-dir/themes
+    default-provider: gtk-common-themes
+  icon-themes:
+    interface: content
+    target: $SNAP/data-dir/icons
+    default-provider: gtk-common-themes
+
 parts:
-  dailydesktopwallpaperplus:
+  application:
      source-type: git
      source: https://github.com/pgc062020/DailyDesktopWallpaperPlus.git 
      plugin: qmake
+     project-files: ["DailyDesktopWallpaperPlus.pro"]
      qt-version: qt5
+     after: [desktop-qt5]
+
+  desktop-qt5:
+     plugin: nil
      build-packages:
        - build-essential
        - qtbase5-dev
        - dpkg-dev
+       - qt5-default
      stage-packages:
        - libqt5gui5
+       - libqt5core5a
+       - libqt5widgets5
+       - libqt5xml5
+
