@@ -51,7 +51,8 @@ FORMS    += mainwindow.ui \
     photobrowser.ui
 
 RESOURCES += \
-    picfiles.qrc
+    mainicon.qrc \
+    mainicon.qrc
 
 
 # rules to set the target directory.
@@ -69,4 +70,5 @@ INSTALLS += target
 ########################################
 # if you compile with GCC/G++:
 ########################################
-QMAKE_CXXFLAGS += -zexecstack -fno-stack-protector -g
+
+QMAKE_CXXFLAGS += -fno-stack-protector -g
