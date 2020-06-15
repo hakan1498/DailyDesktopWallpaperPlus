@@ -51,9 +51,7 @@ FORMS    += mainwindow.ui \
     photobrowser.ui
 
 RESOURCES += \
-    mainicon.qrc \
     mainicon.qrc
-
 
 # rules to set the target directory.
 isEmpty(PREFIX){
