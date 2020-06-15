@@ -54,7 +54,7 @@ RESOURCES += \
     mainicon.qrc
 
 
-# rules to set the target directory /usr by create a SNAP.
+# rules to set the target directory.
 isEmpty(PREFIX){
  PREFIX = /usr
 }
