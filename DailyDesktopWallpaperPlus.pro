@@ -68,4 +68,4 @@ INSTALLS += target
 
 ########################################
 
-QMAKE_CXXFLAGS += -fno-stack-protector
+# QMAKE_CXXFLAGS += -fno-stack-protector
