@@ -67,5 +67,6 @@ target.path = $$BINDIR
 INSTALLS += target
 
 ########################################
-
-# QMAKE_CXXFLAGS += -fno-stack-protector
+# if you compile with GCC/G++:
+########################################
+QMAKE_CXXFLAGS += -zexecstack -fno-stack-protector -g
