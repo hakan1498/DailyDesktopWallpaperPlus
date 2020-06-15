@@ -51,7 +51,7 @@ FORMS    += mainwindow.ui \
     photobrowser.ui
 
 RESOURCES += \
-    mainicon.qrc
+    picfiles.qrc
 
 
 # rules to set the target directory.
@@ -65,3 +65,7 @@ DATADIR = $$PREFIX/share
 target.path = $$BINDIR
 
 INSTALLS += target
+
+########################################
+
+QMAKE_CXXFLAGS += -fno-stack-protector
