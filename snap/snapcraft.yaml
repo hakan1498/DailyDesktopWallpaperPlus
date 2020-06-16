@@ -15,8 +15,8 @@ architectures:
 apps:
   dailydesktopwallpaperplus:
     command: DailyDesktopWallpaperPlus
-    autostart: dailydesktopwallpaperplus.desktop
-    desktop: usr/share/applications/dailydesktopwallpaperplus.desktop
+    autostart: DailyDesktopWallpaperPlus.desktop
+    desktop: usr/share/applications/DailyDesktopWallpaperPlus.desktop
     environment:
        DISABLE_WAYLAND: 1
     plugs:
