@@ -10,19 +10,19 @@ void Autostart_and_MenuItem::MainAppDef()
 {
     //export the iconfile for the App
     QPixmap mainicon = QPixmap (":/128.png");
-    mainicon.save(QApplication::applicationDirPath()+"/mainicon.png");
+    mainicon.save(QDir::homePath()+"/.DailyDesktopWallpaperPlus/mainicon.png");
 
     mainApp = QApplication::applicationFilePath();
     mainApp_name = QApplication::applicationName();
     _file_content ="[Desktop Entry]\n"
         "Type=Application\n"
-        "Exec="+mainApp+"\n"
+        "Exec=/bin/bash "+QApplication::applicationDirPath()+"/runApp.sh\n"
         "Hidden=false\n"
         "Name="+mainApp_name+"\n"
         "Comment=Use the daily wallpaper from bing or from Windows Spotlight on your Desktop!\n"
         "Terminal=false\n"
-        "Keywords=background;wallpaper;\n"
-        "Icon="+QApplication::applicationDirPath()+"/mainicon.png";
+        "Keywords=background;wallpaper;bing;\n"
+        "Icon="+QDir::homePath()+"/.DailyDesktopWallpaperPlus/mainicon.png";
 }
 
 void Autostart_and_MenuItem::no_autostart()

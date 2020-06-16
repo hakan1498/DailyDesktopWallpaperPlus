@@ -39,6 +39,7 @@ private:
     bool _AutoChange;
     bool _SaveOldWallpaper;
     bool _create_menu_item;
+    bool _run_on_snapcraft;
 
     void init_settings();
     void write_settings();

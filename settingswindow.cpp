@@ -43,6 +43,7 @@ void SettingsWindow::init_settings()
     _Autostart = settings.value("Autostart","").toBool();
     _SaveOldWallpaper = settings.value("SaveOldWallpaper","").toBool();
     _create_menu_item = settings.value("create_menu_item","").toBool();
+    _run_on_snapcraft = settings.value("run_on_snapcraft","").toBool();
     settings.endGroup();
 
     settings.beginGroup("SETWALLPAPER");
@@ -98,11 +99,17 @@ void SettingsWindow::init_settings()
     ui->comboBox->addItem("Cinnamon");
     ui->comboBox->addItem("Deepin Desktop Environment");
     ui->comboBox->addItem("GNOME");
-    ui->comboBox->addItem("KDE 3.x / Trinity Desktop Environment");
-    ui->comboBox->addItem("KDE Plasma 5.x");
-    ui->comboBox->addItem("LXDE");
     ui->comboBox->addItem("MATE");
-    ui->comboBox->addItem("XFCE");
+    ui->comboBox->addItem("Unity");
+    ui->comboBox->addItem("KDE Plasma 5.x");
+
+     //Items for non-snapcraft Version
+    if(_run_on_snapcraft==false) {
+        ui->comboBox->addItem("KDE 3.x / Trinity Desktop Environment");
+        ui->comboBox->addItem("LXDE");
+        ui->comboBox->addItem("XFCE");
+    }
+
     ui->comboBox->setCurrentIndex(_Parameter);
 }
 
@@ -112,7 +119,6 @@ void SettingsWindow::write_settings()
     combobox_index.sprintf("%d", ui->comboBox->currentIndex());
 
     _WallpaperDir = ui->lineEdit->text();
-
 
     _Autostart = ui->checkBox_2->checkState();
     _AutoChange = ui->checkBox_3->checkState();

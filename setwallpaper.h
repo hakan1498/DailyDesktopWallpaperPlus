@@ -22,6 +22,7 @@ private:
     void _remove_bashfile();
     void _remove_pufferpicture();
     void _read_settings();
+    void _apply_wallpaper_gdbus();
 };
 
 #endif // SETWALLPAPER_H

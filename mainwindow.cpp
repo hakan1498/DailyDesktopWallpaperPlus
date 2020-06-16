@@ -63,6 +63,7 @@ void MainWindow::set_values()
                 "current_description=\n"
                 "current_title=\n"
                 "create_menu_item=true\n"
+                "run_on_snapcraft=false\n"
                 "\n"
                 "[SETWALLPAPER]\n"
                 "AutoChange=true\n"
