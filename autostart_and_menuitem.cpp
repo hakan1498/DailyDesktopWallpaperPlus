@@ -16,7 +16,7 @@ void Autostart_and_MenuItem::MainAppDef()
     mainApp_name = QApplication::applicationName();
     _file_content ="[Desktop Entry]\n"
         "Type=Application\n"
-        "Exec=/bin/bash "+QApplication::applicationDirPath()+"/runApp.sh\n"
+        "Exec="+mainApp+"\n"
         "Hidden=false\n"
         "Name="+mainApp_name+"\n"
         "Comment=Use the daily wallpaper from bing or from Windows Spotlight on your Desktop!\n"

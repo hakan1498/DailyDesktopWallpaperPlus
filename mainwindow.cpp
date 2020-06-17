@@ -63,7 +63,7 @@ void MainWindow::set_values()
                 "current_description=\n"
                 "current_title=\n"
                 "create_menu_item=true\n"
-                "run_on_snapcraft=false\n"
+                "run_on_snapcraft=true\n"
                 "\n"
                 "[SETWALLPAPER]\n"
                 "AutoChange=true\n"
@@ -344,7 +344,7 @@ void MainWindow::_show_photobrowser_click()
 void MainWindow::_menu_settings_click()
 {
     SettingsWindow _sett_win;
-    _sett_win.setFixedSize(591,532);
+    _sett_win.setFixedSize(_sett_win.size());
     _sett_win.setModal(true);
     _sett_win.exec();
     set_values();

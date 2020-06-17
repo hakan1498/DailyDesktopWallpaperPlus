@@ -53,6 +53,7 @@ FORMS    += mainwindow.ui \
 RESOURCES += \
     mainicon.qrc
 
+
 # rules to set the target directory.
 isEmpty(PREFIX){
  PREFIX = /usr
@@ -63,7 +64,18 @@ DATADIR = $$PREFIX/share
 
 target.path = $$BINDIR
 
-INSTALLS += target
+###################################################################
+# Copy .desktop file and the icon (Only if you build a snap!)
+###################################################################
+icon.files = 128.png
+icon.path = $$DATADIR/icons/hicolor/128x128/apps/
+
+desktop.files = DailyDesktopWallpaperPlus.desktop
+desktop.path = $$DATADIR/applications/
+###################################################################
+
+INSTALLS += target icon desktop
+
 
 ########################################
 # if you compile with GCC/G++:

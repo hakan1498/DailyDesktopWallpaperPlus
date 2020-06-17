@@ -95,6 +95,11 @@ void SettingsWindow::init_settings()
         ui->comboBox->setEnabled(true);
     }
 
+    if (_run_on_snapcraft==true) {
+        ui->checkBox->setVisible(false);
+        ui->checkBox_2->setVisible(false);
+    }
+
     ui->comboBox->addItem("Budgie");
     ui->comboBox->addItem("Cinnamon");
     ui->comboBox->addItem("Deepin Desktop Environment");
