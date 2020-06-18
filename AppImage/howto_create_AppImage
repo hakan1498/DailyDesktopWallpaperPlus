@@ -1,0 +1,30 @@
+Create AppImage
+
+howto: https://forum.openframeworks.cc/t/creating-a-appimage-for-linux/33142
+
+MyApp.AppDir/
+MyApp.AppDir/AppRun    --- you donwnload this from [here](https://github.com/AppImage/AppImageKit/releases) get the one AppRun-x86_64 and just renamed to AppRun
+MyApp.AppDir/myapp.desktop
+MyApp.AppDir/myapp.png
+MyApp.AppDir/usr/bin/myapp --- copy your OF app here  i copied  the bin folder complete
+MyApp.AppDir/usr/lib/libfoo.so.0 -- copy here all libraries here (which displayed by the command # ldd MyDailyDesktopWallpaper)
+
+make the MyApp.AppDir/myapp.desktop file like this
+
+[Desktop Entry]
+Name=MyApp
+Exec=myapp
+Icon=myapp
+Type=Application
+Categories=Utility;
+
+----
+
+download this tool:
+https://github.com/AppImage/AppImageKit/releases/download/12/appimagetool-x86_64.AppImage
+
+run it:
+
+# ./appimagetool-x86_64.AppImage 'DailyDesktopWallpaperPlus.AppDir' DailyDesktopWallpaperPlus-x86_64-linux.AppImage
+
+#END
