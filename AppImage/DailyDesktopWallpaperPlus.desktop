@@ -5,5 +5,5 @@ Hidden=false
 Name=DailyDesktopWallpaperPlus
 Comment=Use the daily wallpaper from bing or from Windows Spotlight on your Desktop!
 Terminal=false
-Icon=mainicon.png
-Categories=KDE;
+Icon=mainicon
+Categories=KDE;Utility;
