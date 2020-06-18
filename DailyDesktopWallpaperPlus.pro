@@ -67,14 +67,14 @@ target.path = $$BINDIR
 ###################################################################
 # Copy .desktop file and the icon (Only if you build a snap!)
 ###################################################################
-icon.files = 128.png
-icon.path = $$DATADIR/icons/hicolor/128x128/apps/
+#icon.files = 128.png
+#icon.path = $$DATADIR/icons/hicolor/128x128/apps/
 
-desktop.files = DailyDesktopWallpaperPlus.desktop
-desktop.path = $$DATADIR/applications/
+#desktop.files = DailyDesktopWallpaperPlus.desktop
+#desktop.path = $$DATADIR/applications/
 ###################################################################
 
-INSTALLS += target icon desktop
+INSTALLS += target  #icon desktop
 
 
 ########################################
