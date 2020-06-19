@@ -355,7 +355,7 @@ void MainWindow::_menu_settings_click()
 void MainWindow::_menu_about_click()
 {
     About _about_win;
-    _about_win.setFixedSize(433,353);
+    _about_win.setFixedSize(_about_win.size());
     _about_win.setModal(true);
     _about_win.exec();
 
