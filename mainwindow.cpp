@@ -13,6 +13,7 @@
 #include <QPixmap>
 #include <QActionGroup>
 #include <QApplication>
+#include <QCursor>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -23,11 +24,23 @@ MainWindow::MainWindow(QWidget *parent) :
 
     _iniFilePath = QDir::homePath()+"/.DailyDesktopWallpaperPlus/settings.ini";
 
+    mSystemTrayIcon = new QSystemTrayIcon(this);
+
     set_values();
     init_MainContextMenu();
     init_SystemTrayIcon();
     check_dir();
     load_wallpaper();
+
+    connect(mSystemTrayIcon,SIGNAL(activated(QSystemTrayIcon::ActivationReason)),this,SLOT(showHide(QSystemTrayIcon::ActivationReason)));
+}
+
+void MainWindow::showHide(QSystemTrayIcon::ActivationReason r)
+{
+    if (r == QSystemTrayIcon::Trigger)
+        {
+            menu->exec(QCursor::pos());
+        }
 }
 
 MainWindow::~MainWindow()
@@ -325,7 +338,7 @@ void MainWindow::init_MainContextMenu()
 
 void MainWindow::init_SystemTrayIcon()
 {
-    mSystemTrayIcon = new QSystemTrayIcon(this);
+
     mSystemTrayIcon->setIcon(QIcon(":/128.png"));
 
     mSystemTrayIcon->setContextMenu(menu);
