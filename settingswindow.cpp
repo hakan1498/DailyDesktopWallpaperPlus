@@ -104,6 +104,7 @@ void SettingsWindow::init_settings()
     ui->comboBox->addItem("KDE 3.x / Trinity Desktop Environment");
     ui->comboBox->addItem("LXDE");
     ui->comboBox->addItem("XFCE");
+    ui->comboBox->addItem("XFCE (automatic Monitor detection)");
 
     ui->comboBox->setCurrentIndex(_Parameter);
 }

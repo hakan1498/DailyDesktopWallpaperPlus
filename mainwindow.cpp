@@ -294,8 +294,9 @@ void MainWindow::init_MainContextMenu()
     connect(exitApp, SIGNAL(triggered()), this, SLOT(close()));
 
     // Create submenus of providers
-    QAction * _winspot_wall_option = providers->addAction(trUtf8("Photo of Windows Spotlight"));
-    QAction * _bing_wall_option = providers->addAction(trUtf8("Bing's picture of the day"));
+    // Is private
+    _winspot_wall_option = providers->addAction(trUtf8("Photo of Windows Spotlight"));
+    _bing_wall_option = providers->addAction(trUtf8("Bing's picture of the day"));
 
     QActionGroup* _providers_group = new QActionGroup(this);
 
@@ -368,6 +369,8 @@ void MainWindow::_menu_winspot_wall_option_click()
     init_MainContextMenu();
     mSystemTrayIcon->setContextMenu(menu);
     _setWinSpotWallpaper();
+    // set item
+    _bing_wall_option->setChecked(false);
 }
 
 void MainWindow::_menu_bing_wall_option_click()
@@ -378,6 +381,7 @@ void MainWindow::_menu_bing_wall_option_click()
     init_MainContextMenu();
     mSystemTrayIcon->setContextMenu(menu);
     _setBingWallpaper();
+    _winspot_wall_option->setChecked(false);
 }
 
 void MainWindow::_menu_bingRefresh_click()
@@ -592,7 +596,6 @@ void MainWindow::_keeporremove_old_wallpaper()
 
             old_bgfile.remove();
     }
-
         QFile::copy(_WallpaperDir+"/"+filename, _OldWallpaperDir+"/"+filename_new);
 
         QFile _current_backgroundfile(_WallpaperDir+"/"+filename);

@@ -80,6 +80,9 @@ private:
     QString _binglocation;
     QString _appVersion;
 
+    QAction * _bing_wall_option;
+    QAction * _winspot_wall_option;
+
     int _Parameter;
 
     bool _Autostart;

@@ -76,27 +76,17 @@ void PhotoBrowser::_read_path()
 void PhotoBrowser::_init_ImageList()
 {
     fmodel->clear();
-
     running = false;
-
-    thread.waitForFinished();
-
+    thread.waitForFinished();  
     QDir imageDir(_OldWallpaperDir);
-
     QFileInfoList WallpaperList = imageDir.entryInfoList(QStringList() << "*.jpg", QDir::Files);
-
     int WallpaperCount = WallpaperList.size();
-
     QPixmap placeholder = QPixmap(ui->listView->iconSize());
     placeholder.fill(Qt::gray);
-
     for (int i = 0; i < WallpaperCount; i++)
         fmodel->setItem(i, new QStandardItem(QIcon(placeholder), WallpaperList[i].baseName()));
-
     running = true;
-
     thread = QtConcurrent::run(this, &PhotoBrowser::List, WallpaperList, ui->listView->iconSize());
-
 }
 
 void PhotoBrowser::List(QFileInfoList WallpaperList, QSize size)
