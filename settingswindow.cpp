@@ -43,7 +43,6 @@ void SettingsWindow::init_settings()
     _Autostart = settings.value("Autostart","").toBool();
     _SaveOldWallpaper = settings.value("SaveOldWallpaper","").toBool();
     _create_menu_item = settings.value("create_menu_item","").toBool();
-    _run_on_snapcraft = settings.value("run_on_snapcraft","").toBool();
     settings.endGroup();
 
     settings.beginGroup("SETWALLPAPER");
@@ -95,11 +94,6 @@ void SettingsWindow::init_settings()
         ui->comboBox->setEnabled(true);
     }
 
-    if (_run_on_snapcraft==true) {
-        ui->checkBox->setVisible(false);
-        ui->checkBox_2->setVisible(false);
-    }
-
     ui->comboBox->addItem("Budgie");
     ui->comboBox->addItem("Cinnamon");
     ui->comboBox->addItem("Deepin Desktop Environment");
@@ -107,13 +101,9 @@ void SettingsWindow::init_settings()
     ui->comboBox->addItem("MATE");
     ui->comboBox->addItem("Unity");
     ui->comboBox->addItem("KDE Plasma 5.x");
-
-     //Items for non-snapcraft Version
-    if(_run_on_snapcraft==false) {
-        ui->comboBox->addItem("KDE 3.x / Trinity Desktop Environment");
-        ui->comboBox->addItem("LXDE");
-        ui->comboBox->addItem("XFCE");
-    }
+    ui->comboBox->addItem("KDE 3.x / Trinity Desktop Environment");
+    ui->comboBox->addItem("LXDE");
+    ui->comboBox->addItem("XFCE");
 
     ui->comboBox->setCurrentIndex(_Parameter);
 }

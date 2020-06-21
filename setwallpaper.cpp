@@ -74,8 +74,8 @@ void setWallpaper::_export_PufferPicture()
 {
     //export pufferpic.jpg from RessourceFile to AppDir to set the wallpaper on KDE Plasma 5.x
 
-    QPixmap pufferpicture = QPixmap (":/pufferpic.jpg");
-    pufferpicture.save(QDir::homePath()+"/.DailyDesktopWallpaperPlus/pufferpic.jpg");
+    QPixmap pufferpicture_export = QPixmap (":/pufferpic.jpg");
+    pufferpicture_export.save(pufferpicture);
 }
 
 void setWallpaper::_create_bashfile()
@@ -91,8 +91,29 @@ void setWallpaper::_create_bashfile()
                 "wallpaperDir=\""+_WallpaperDir+"\"\n"
                 "\n"
                 "WallpaperDir="+QApplication::applicationDirPath()+"/"+"DailyDesktopWallpaperPlus_wallpapers\n"
-                "qdbus org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript 'var allDesktops = desktops();print (allDesktops);for (i=0;i<allDesktops.length;i++) {d = allDesktops[i];d.wallpaperPlugin = \"org.kde.image\";d.currentConfigGroup = Array(\"Wallpaper\", \"org.kde.image\", \"General\");d.writeConfig(\"Image\", \"file://"+pufferpicture+"\")}'\n"
-                "qdbus org.kde.plasmashell /PlasmaShell org.kde.PlasmaShell.evaluateScript 'var allDesktops = desktops();print (allDesktops);for (i=0;i<allDesktops.length;i++) {d = allDesktops[i];d.wallpaperPlugin = \"org.kde.image\";d.currentConfigGroup = Array(\"Wallpaper\", \"org.kde.image\", \"General\");d.writeConfig(\"Image\", \"file://"+backgroundfile+"\")}'\n";
+                " \n"
+                "dbus-send --session --dest=org.kde.plasmashell --type=method_call /PlasmaShell org.kde.PlasmaShell.evaluateScript 'string:\n"
+                "var Desktops = desktops(); \n"
+                "for (i=0;i<Desktops.length;i++) {\n"
+                "        d = Desktops[i];\n"
+                "        d.wallpaperPlugin = \"org.kde.image\";\n"
+                "        d.currentConfigGroup = Array(\"Wallpaper\",\n"
+                "                                    \"org.kde.image\",\n"
+                "                                    \"General\");\n"
+                "        d.writeConfig(\"Image\", \"file://"+pufferpicture+"\");\n"
+                "}'\n"
+                "sleep 0.5\n"
+                " \n"
+                "dbus-send --session --dest=org.kde.plasmashell --type=method_call /PlasmaShell org.kde.PlasmaShell.evaluateScript 'string:\n"
+                "var Desktops = desktops(); \n"
+                "for (i=0;i<Desktops.length;i++) {\n"
+                "        d = Desktops[i];\n"
+                "        d.wallpaperPlugin = \"org.kde.image\";\n"
+                "        d.currentConfigGroup = Array(\"Wallpaper\",\n"
+                "                                    \"org.kde.image\",\n"
+                "                                    \"General\");\n"
+                "        d.writeConfig(\"Image\", \"file://"+backgroundfile+"\");\n"
+                "}'";
 
         if (set_wallpaper_plasma.open(QIODevice::Append))
         {
@@ -110,6 +131,6 @@ void setWallpaper::_remove_bashfile()
 
 void setWallpaper::_remove_pufferpicture()
 {
-    QFile pp(QDir::homePath()+"/.DailyDesktopWallpaperPlus/pufferpic.jpg");
+    QFile pp(pufferpicture);
     pp.remove();
 }
