@@ -8,6 +8,7 @@
 #include <QDir>
 #include <QMessageBox>
 #include <QCloseEvent>
+#include <QKeyEvent>
 
 SettingsWindow::SettingsWindow(QWidget *parent) :
     QDialog(parent),
@@ -21,6 +22,10 @@ void SettingsWindow::closeEvent(QCloseEvent * event)
 {
     // stop close event and hide window;
     event->ignore();
+    this->hide();
+}
+
+void SettingsWindow::reject() {
     this->hide();
 }
 
@@ -104,7 +109,6 @@ void SettingsWindow::init_settings()
     ui->comboBox->addItem("KDE 3.x / Trinity Desktop Environment");
     ui->comboBox->addItem("LXDE");
     ui->comboBox->addItem("XFCE");
-    ui->comboBox->addItem("XFCE (automatic Monitor detection)");
 
     ui->comboBox->setCurrentIndex(_Parameter);
 }

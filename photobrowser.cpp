@@ -55,6 +55,10 @@ void PhotoBrowser::closeEvent(QCloseEvent * event)
     this->hide();
 }
 
+void PhotoBrowser::reject() {
+    this->hide();
+}
+
 PhotoBrowser::~PhotoBrowser()
 {
     delete ui;

@@ -29,6 +29,10 @@ void About::closeEvent(QCloseEvent * event)
     this->hide();
 }
 
+void About::reject() {
+    this->hide();
+}
+
 void About::readVersion()
 {
     QString _iniFilePath = QDir::homePath()+"/.DailyDesktopWallpaperPlus/settings.ini";

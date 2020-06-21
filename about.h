@@ -24,6 +24,7 @@ private:
     Ui::About *ui;
     void readVersion();
     void closeEvent(QCloseEvent * event);
+    void reject();
 };
 
 #endif // ABOUT_H

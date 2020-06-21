@@ -46,6 +46,7 @@ private:
     void selectOldWallpaperDir();
     void selectWallpaperDir();
     void closeEvent(QCloseEvent * event);
+    void reject();
 };
 
 #endif // SETTINGSWINDOW_H

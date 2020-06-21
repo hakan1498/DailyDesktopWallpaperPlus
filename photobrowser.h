@@ -47,6 +47,7 @@ private:
     void _init_ImageList();
     void _read_path();
     void closeEvent(QCloseEvent * event);
+    void reject();
 };
 
 #endif // PHOTOBROWSER_H

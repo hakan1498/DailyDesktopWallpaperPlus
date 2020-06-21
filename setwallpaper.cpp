@@ -9,7 +9,6 @@
 #include <QTextStream>
 #include <QDir>
 #include <QTimer>
-#include <QEventLoop>
 
 void setWallpaper::_read_settings()
 {
@@ -67,12 +66,12 @@ void setWallpaper::_set_wallpaper()
     else if(_Parameter==8)
         //LXDE
         setWallpaper.execute("pcmanfm --set-wallpaper=\""+backgroundfile+"\"");
-    else if(_Parameter==9)
-         //XFCE
-        setWallpaper.execute("xfconf-query --channel xfce4-desktop --property /backdrop/screen0/monitor0/workspace0/last-image --set \""+backgroundfile+"\"");
-    else if(_Parameter==10) {
-         //XFCE with auto. Monitor detection
+    else if(_Parameter==9) {
+        // XFCE
+        // detect all monitors (_xfce4_detect_monitors()); set wallpaper for all monitors in a second part
+
         _xfce4_detect_monitors();
+
         for (int i = 0; i < _detected_monitors.size(); i++)
         {
             QString _selected_monitor = _detected_monitors.at(i);

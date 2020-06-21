@@ -26,8 +26,6 @@ private:
     void _remove_bashfile();
     void _remove_pufferpicture();
     void _read_settings();
-    void _apply_wallpaper_gdbus();
-    void _xfce4_monitor_detect();
     void _xfce4_detect_monitors();
 };
 
