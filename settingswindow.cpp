@@ -8,7 +8,6 @@
 #include <QDir>
 #include <QMessageBox>
 #include <QCloseEvent>
-#include <QKeyEvent>
 
 SettingsWindow::SettingsWindow(QWidget *parent) :
     QDialog(parent),
@@ -33,7 +32,6 @@ SettingsWindow::~SettingsWindow()
 {
     delete ui;
 }
-
 
 void SettingsWindow::init_settings()
 {
@@ -137,7 +135,6 @@ void SettingsWindow::write_settings()
     } else {
         _create_menu_item = false;
     }
-
 
     QSettings settings(_iniFilePath, QSettings::IniFormat);
 
