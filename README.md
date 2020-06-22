@@ -24,8 +24,9 @@ https://sourceforge.net/projects/dailydesktopwallpaperplus/
     * Deepin Desktop Environment
 
 
-#### Download build of DailyDesktopWallpaper - Version 1.0: <br />
+#### Download the latest build:<br />
 https://sourceforge.net/projects/dailydesktopwallpaperplus/files/Linux/
+
 
 #### Donate if you want:
 <p>
