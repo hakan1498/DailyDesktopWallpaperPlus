@@ -38,8 +38,9 @@
 
 
 #### Requierment for build from source: <br />
-`Qt 5.14 (or a higher version | recommend: Install Qt with the Online Installer)`
-
+```
+Qt 5.14 (or a higher version | recommend: Install Qt with the Online Installer)
+```
 Download here: https://www.qt.io/download
 
 #### Build instructions:
