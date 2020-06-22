@@ -34,7 +34,7 @@ Download here: https://www.qt.io/download
 `qmake` <br />
 `make` <br />
 <br />
-run as root:<br />
+As root:<br />
 `make install`<br /><br />
 
 Run the Application: <br />
