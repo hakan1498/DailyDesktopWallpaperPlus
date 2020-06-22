@@ -54,7 +54,7 @@ run as root:
 ``` 
 make install
 ``` 
-Run the Application: 
+run the Application: 
 ``` 
 DailyDesktopWallpaperPlus
 ``` 
