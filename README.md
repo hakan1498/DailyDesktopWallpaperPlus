@@ -57,5 +57,4 @@ Run the Application:
 ``` 
 DailyDesktopWallpaperPlus
 ``` 
-<br />
 #### Screenshots: https://sourceforge.net/projects/dailydesktopwallpaperplus/
