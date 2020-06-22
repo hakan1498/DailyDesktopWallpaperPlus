@@ -1,6 +1,5 @@
 ![Screenshot](https://github.com/pgc062020/DailyDesktopWallpaperPlus/blob/master/128.png)
 # DailyDesktopWallpaperPlus
------
 
 ## A Utility to download and set Bing's or Windows Spotlight's daily photo as your wallpaper on your Linux-Desktop.
 
