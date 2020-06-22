@@ -3,8 +3,8 @@
 
 ## A Utility to download and set Bing's or Windows Spotlight's daily photo as your wallpaper on your Linux-Desktop.
 
-#### Projectsite: 
-https://sourceforge.net/projects/dailydesktopwallpaperplus/
+#### Visit Projectsite on SourceForge: 
+<a href="https://sourceforge.net/projects/dailydesktopwallpaperplus/"><img alt="Download gmorgan" src="https://sourceforge.net/sflogo.php?type=17&group_id=96355" width=200></a>
 
 #### Features:
 
