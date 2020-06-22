@@ -49,12 +49,10 @@ Compile the sources:
 qmake
 make
 ```
-<br /> <br />
 run as root:
 ``` 
 make install
 ``` 
-<br /> <br />
 Run the Application: 
 ``` 
 DailyDesktopWallpaperPlus
