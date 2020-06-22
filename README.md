@@ -49,15 +49,14 @@ qmake
 make
 ``` 
 <br />
-<br />
 run as root:
 ``` 
 make install
 ``` 
-
+<br />
 Run the Application: 
 ``` 
 DailyDesktopWallpaperPlus
 ``` 
-
+<br />
 #### Screenshots: https://sourceforge.net/projects/dailydesktopwallpaperplus/
