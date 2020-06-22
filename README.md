@@ -3,6 +3,9 @@
 
 ## A Utility to download and set Bing's or Windows Spotlight's daily photo as your wallpaper on your Linux-Desktop.
 
+#### Projectsite: 
+https://sourceforge.net/projects/dailydesktopwallpaperplus/
+
 #### Features:
 
  * Download Bing's daily photo from 10 Countries and set automatically as your wallpaper.
@@ -20,8 +23,16 @@
     * Budgie
     * Deepin Desktop Environment
 
- 
-Projectsite: https://sourceforge.net/projects/dailydesktopwallpaperplus/
+
+#### Download build of DailyDesktopWallpaper - Version 1.0: <br />
+https://sourceforge.net/projects/dailydesktopwallpaperplus/files/Linux/
+
+#### Donate if you want:
+<p>
+  <a href="https://paypal.me/PGC1991">
+      <img src="https://img.shields.io/badge/Donate-PayPal-green.svg" alt="paypal">
+  </a>
+</p>
 
 
 #### Requierment for build from source: <br />
