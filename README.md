@@ -44,13 +44,20 @@ Download here: https://www.qt.io/download
 
 #### Build instructions:
 
-`qmake` <br />
-`make` <br />
+```
+qmake
+make
+``` 
 <br />
-run as root:<br />
-`make install`<br /><br />
+<br />
+run as root:
+``` 
+make install
+``` 
 
-Run the Application: <br />
-`DailyDesktopWallpaperPlus` <br /><br />
+Run the Application: 
+``` 
+DailyDesktopWallpaperPlus
+``` 
 
 #### Screenshots: https://sourceforge.net/projects/dailydesktopwallpaperplus/
