@@ -1,3 +1,4 @@
+![Screenshot](https://github.com/pgc062020/DailyDesktopWallpaperPlus/blob/master/128.png)
 # DailyDesktopWallpaperPlus
 -----
 
