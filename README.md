@@ -41,7 +41,7 @@ https://sourceforge.net/projects/dailydesktopwallpaperplus/files/Linux/
 
 Download here: https://www.qt.io/download
 
-#### Build instructions
+#### Build instructions:
 
 `qmake` <br />
 `make` <br />
