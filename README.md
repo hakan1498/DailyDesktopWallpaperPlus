@@ -35,9 +35,9 @@ Download here: https://www.qt.io/download
 `make` <br />
 <br />
 run as root:<br />
-`make install`<br /><br /><br />
+`make install`<br /><br />
 
-Run the Application:
-`DailyDesktopWallpaperPlus`
+Run the Application: <br />
+`DailyDesktopWallpaperPlus` <br /><br />
 
-Screenshots: https://sourceforge.net/projects/dailydesktopwallpaperplus/
+#### Screenshots: https://sourceforge.net/projects/dailydesktopwallpaperplus/
