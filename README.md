@@ -25,7 +25,8 @@
 
 
 #### Download the latest build:<br />
-https://sourceforge.net/projects/dailydesktopwallpaperplus/files/Linux/
+<a href="https://sourceforge.net/projects/dailydesktopwallpaperplus/files/Linux/"><img alt="Download gmorgan" src="https://a.fsdn.com/con/app/sf-download-button" width=276 height=48 srcset="https://a.fsdn.com/con/app/sf-download-button?button_size=2x 2x"></a>
+
 
 
 #### Donate if you want:
