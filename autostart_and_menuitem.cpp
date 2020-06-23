@@ -21,11 +21,11 @@ void Autostart_and_MenuItem::set_autostartLocation()
 
     if(_confDirVariable.contains(":")) {
         _detected_autostart_dirs = _confDirVariable.split(":");
-        _autostart_dir = _detected_autostart_dirs.at(0);
+        _autostart_dir = _detected_autostart_dirs.at(0)+"/autostart";
     } else {
         //check if the variable contains a filepath; if empty then set default path
         if(_confDirVariable.contains("/")) {
-            _autostart_dir = _confDirVariable.toUtf8();
+            _autostart_dir = _confDirVariable.toUtf8()+"/autostart";
         } else {
             _autostart_dir = QDir::homePath()+"/.config/autostart";
         }
