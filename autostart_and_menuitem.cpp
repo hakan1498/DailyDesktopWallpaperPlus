@@ -5,6 +5,32 @@
 #include <QDir>
 #include <QApplication>
 #include <QTextStream>
+#include <QProcess>
+#include <QDebug>
+#include <QtGlobal>
+
+void Autostart_and_MenuItem::set_autostartLocation()
+{
+    // read variable $XDG_CONFIG_HOME.
+    // If the variable is empty then set default directory $HOME/.config
+    //
+    // If the variable contains more than one directory (e.g. PATH1:PATH2...)
+    // then split by ":" and select the first directory as autostartDir.
+
+    QString _confDirVariable = qgetenv("XDG_CONFIG_HOME");
+
+    if(_confDirVariable.contains(":")) {
+        _detected_autostart_dirs = _confDirVariable.split(":");
+        _autostart_dir = _detected_autostart_dirs.at(0);
+    } else {
+        //check if the variable contains a filepath; if empty then set default path
+        if(_confDirVariable.contains("/")) {
+            _autostart_dir = _confDirVariable.toUtf8();
+        } else {
+            _autostart_dir = QDir::homePath()+"/.config/autostart";
+        }
+    }
+}
 
 void Autostart_and_MenuItem::MainAppDef()
 {
@@ -27,28 +53,27 @@ void Autostart_and_MenuItem::MainAppDef()
 
 void Autostart_and_MenuItem::no_autostart()
 {
+    set_autostartLocation();
     QString mainApp_name = QApplication::applicationName();
-    QString _path_autostart = QDir::homePath()+"/.config/autostart";
-    QFile autostart_file(_path_autostart+"/"+mainApp_name+".desktop");
+    QFile autostart_file(_autostart_dir+"/"+mainApp_name+".desktop");
     autostart_file.remove();
 }
 
 void Autostart_and_MenuItem::set_autostart()
 {
     MainAppDef();
+    set_autostartLocation();
 
-    QString _path_autostart = QDir::homePath()+"/.config/autostart";
-
-    QDir autostart_dir(_path_autostart);
+    QDir autostart_dir(_autostart_dir);
     if (!autostart_dir.exists())
     {
-        autostart_dir.mkpath(_path_autostart);
+        autostart_dir.mkpath(_autostart_dir);
     }
 
-    QFile autostart_file(_path_autostart+"/"+mainApp_name+".desktop");
+    QFile autostart_file(_autostart_dir+"/"+mainApp_name+".desktop");
     if(autostart_file.exists())
     {
-        QFile _desktop_file(_path_autostart+"/"+mainApp_name+".desktop");
+        QFile _desktop_file(_autostart_dir+"/"+mainApp_name+".desktop");
         _desktop_file.remove();
     }
 
