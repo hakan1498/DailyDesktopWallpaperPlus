@@ -8,7 +8,6 @@ class ItemDelegate : public QStyledItemDelegate
   public:
     ItemDelegate();
     using QStyledItemDelegate::QStyledItemDelegate;
-
     bool displayRoleEnabled = false;
 
   protected:
