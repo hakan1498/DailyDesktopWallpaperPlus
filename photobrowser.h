@@ -29,7 +29,6 @@ private slots:
     void List(QFileInfoList filesList, QSize size);
     void setThumbs(int index, QImage img);
     void on_pushButton_clicked();
-    void on_pushButton_2_clicked();
     void setWallpaperFile();
 
 private:

@@ -116,7 +116,7 @@ void MainWindow::set_values()
     _Provider = settings.value("Provider","").toString();
     settings.endGroup();
 
-    _appVersion = "1.1";
+    _appVersion = "1.2";
     _write_AppVersion();
 
     if (_Autostart == true)
@@ -333,7 +333,7 @@ void MainWindow::init_MainContextMenu()
         _bing_wall_option->setChecked(true);
     } else {
         _winspot_wall_option->setChecked(true);
-    }
+    } 
 }
 
 void MainWindow::init_SystemTrayIcon()

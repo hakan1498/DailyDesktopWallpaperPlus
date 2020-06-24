@@ -1,5 +1,6 @@
 #include "photobrowser.h"
 #include "ui_photobrowser.h"
+#include "itemdelegate.h"
 
 #include <QSize>
 #include <QFile>
@@ -27,19 +28,18 @@ PhotoBrowser::PhotoBrowser(QWidget *parent) :
     fsmodel = new QFileSystemModel(this);
     fsmodel->setRootPath(_OldWallpaperDir);
 
+    fmodel = new QStandardItemModel(this);
+
     ui->listView->setResizeMode(QListView::Adjust);
     ui->listView->setFlow(QListView::LeftToRight);
     ui->listView->setSpacing(15);
     ui->listView->setWrapping(true);
-
     ui->listView->setUniformItemSizes(true);
-    ui->listView->setIconSize(QSize (130, 90));
-
-    fmodel = new QStandardItemModel(this);
-
+    ui->listView->setIconSize(QSize (160, 120));
     ui->listView->setModel(fmodel);
     ui->listView->setViewMode(QListView::IconMode);
     ui->listView->setMovement(QListView::Static);
+    ui->listView->setItemDelegate(new ItemDelegate(this));
 
     connect(this, SIGNAL(UpdateItem(int,QImage)), SLOT(setThumbs(int,QImage)));
 
@@ -119,11 +119,6 @@ void PhotoBrowser::setThumbs(int index, QImage img)
 void PhotoBrowser::on_pushButton_clicked()
 {
     setWallpaperFile();
-}
-
-void PhotoBrowser::on_pushButton_2_clicked()
-{
-    this->hide();
 }
 
 void PhotoBrowser::setWallpaperFile()

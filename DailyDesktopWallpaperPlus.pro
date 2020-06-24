@@ -27,6 +27,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += main.cpp\
+    itemdelegate.cpp \
         mainwindow.cpp \
     settingswindow.cpp \
     getbingwallpaper.cpp \
@@ -37,6 +38,7 @@ SOURCES += main.cpp\
     setwallpaper.cpp
 
 HEADERS  += mainwindow.h \
+    itemdelegate.h \
     settingswindow.h \
     getbingwallpaper.h \
     getwinspotwallpaper.h \
@@ -60,15 +62,7 @@ isEmpty(PREFIX){
 }
 
 BINDIR  = $$PREFIX/bin
-DATADIR = $$PREFIX/share
 
 target.path = $$BINDIR
 
-INSTALLS += target  #icon desktop
-
-
-########################################
-# if you compile with GCC/G++:
-########################################
-
-# QMAKE_CXXFLAGS += -fno-stack-protector -g
+INSTALLS += target
