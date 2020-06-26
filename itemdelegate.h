@@ -11,11 +11,11 @@ class ItemDelegate : public QStyledItemDelegate
     bool displayRoleEnabled = false;
 
   protected:
-    void initStyleOption(QStyleOptionViewItem *o, const QModelIndex &idx) const override
+    void initStyleOption(QStyleOptionViewItem *_styleOption, const QModelIndex &_modInd) const override
     {
-      QStyledItemDelegate::initStyleOption(o, idx);
+      QStyledItemDelegate::initStyleOption(_styleOption, _modInd);
       if (!displayRoleEnabled)
-        o->features &= ~QStyleOptionViewItem::HasDisplay;
+        _styleOption->features &= ~QStyleOptionViewItem::HasDisplay;
     }
 };
 
