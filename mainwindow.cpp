@@ -200,7 +200,7 @@ void MainWindow::init_MainContextMenu()
 
     menu = new QMenu(this);
 
-    // Init Widgets to show title, thumbnail of the background and
+    // Init Widgets to show title, thumbnail of the Wallpaper and
     // description in the context menu
 
     QWidget* _descWidget = new QWidget();
@@ -338,9 +338,6 @@ void MainWindow::init_MainContextMenu()
 
     if (_Provider == "WindowsSpotlight")
     {
-        //init_descriptionWidget();
-        //menu->addAction(_widgetaction);
-
         QPixmap refresh(":icons/Download.png");
         QAction * wspotRef = menu->addAction(refresh, trUtf8("Refresh Wallpaper"));
 
