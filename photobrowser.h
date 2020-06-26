@@ -1,7 +1,7 @@
 #ifndef PHOTOBROWSER_H
 #define PHOTOBROWSER_H
 
-#include "setwallpaper.h"
+#include "mainwindow.h"
 
 #include <QDialog>
 #include <QString>
@@ -21,6 +21,8 @@ class PhotoBrowser : public QDialog
 public:
     explicit PhotoBrowser(QWidget *parent = 0);
     ~PhotoBrowser();
+
+    bool wallchanged;
 
 signals:
     void UpdateItem(int, QImage);

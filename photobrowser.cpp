@@ -44,6 +44,7 @@ PhotoBrowser::PhotoBrowser(QWidget *parent) :
     connect(this, SIGNAL(UpdateItem(int,QImage)), SLOT(setThumbs(int,QImage)));
 
     running = false;
+    wallchanged = false;
 
     _init_ImageList();
 }
@@ -118,6 +119,7 @@ void PhotoBrowser::setThumbs(int index, QImage img)
 
 void PhotoBrowser::on_pushButton_clicked()
 {
+    wallchanged = true;
     setWallpaperFile();
 }
 

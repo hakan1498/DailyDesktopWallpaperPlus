@@ -15,6 +15,7 @@
 #include <QtNetwork/QNetworkRequest>
 #include <QtNetwork/QNetworkReply>
 #include <QtNetwork/QNetworkAccessManager>
+#include <QWidgetAction>
 
 namespace Ui {
 class MainWindow;
@@ -79,20 +80,23 @@ private:
     QString _tooltip_message;
     QString _resolution;
     QString _binglocation;
+    QString _country;
     QString _appVersion;
+
+    QImage _loadImage;
+    QImage _descImage;
 
     QAction * _bing_wall_option;
     QAction * _winspot_wall_option;
 
     int _Parameter;
 
+    bool wallpaper_from_Host;
     bool _Autostart;
     bool _SaveOldWallpaper;
     bool _AutoChange;
     bool _create_menu_item;
 
-    void init_MainContextMenu();
-    void init_SystemTrayIcon();
     void set_values();
     void set_autostart();
     void no_autostart();
@@ -111,6 +115,9 @@ private:
     void no_menu_item();
     void set_menu_item();
     void _write_AppVersion();
+    void init_descriptionImage();
+    void init_MainContextMenu();
+    void init_SystemTrayIcon();
 };
 
 #endif // MAINWINDOW_H

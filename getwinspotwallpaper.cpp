@@ -63,6 +63,9 @@ void GetWinSpotWallpaper::parse_json_wspot()
     QJsonValue _hs1_cta_text = _item_root.value("ad").toObject().value("hs1_cta_text").toObject().value("tx");
     _wspot_title_text = _hs1_cta_text.toString();
 
+    QJsonValue _copyright_text_json = _item_root.value("ad").toObject().value("copyright_text").toObject().value("tx");
+    _wspot_copyright_text = _hs1_cta_text.toString();
+
     write_settings();
     remove_jsonFile();
 }

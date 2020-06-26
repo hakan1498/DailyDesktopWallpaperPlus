@@ -69,9 +69,7 @@ void setWallpaper::_set_wallpaper()
     else if(_Parameter==9) {
         // XFCE
         // detect all monitors (_xfce4_detect_monitors()); set wallpaper for all monitors in a second part
-
         _xfce4_detect_monitors();
-
         for (int i = 0; i < _detected_monitors.size(); i++)
         {
             QString _selected_monitor = _detected_monitors.at(i);
@@ -88,6 +86,7 @@ void setWallpaper::_set_wallpaper()
 void setWallpaper::_xfce4_detect_monitors()
 {
     QProcess _list_monitors;
+
     _list_monitors.start("xfconf-query -c xfce4-desktop -l | grep \"last-image\" ");
     _list_monitors.waitForStarted();
     if(_list_monitors.state()==QProcess::NotRunning)

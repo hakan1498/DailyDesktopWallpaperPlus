@@ -14,6 +14,10 @@
 #include <QActionGroup>
 #include <QApplication>
 #include <QCursor>
+#include <QWidget>
+#include <QLabel>
+#include <QVBoxLayout>
+#include <QWidgetAction>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -23,14 +27,13 @@ MainWindow::MainWindow(QWidget *parent) :
     qApp->setAttribute(Qt::AA_DontShowIconsInMenus, false);
 
     _iniFilePath = QDir::homePath()+"/.DailyDesktopWallpaperPlus/settings.ini";
-
     mSystemTrayIcon = new QSystemTrayIcon(this);
 
     set_values();
-    init_MainContextMenu();
-    init_SystemTrayIcon();
     check_dir();
     load_wallpaper();
+    init_MainContextMenu();
+    init_SystemTrayIcon();
 
     connect(mSystemTrayIcon,SIGNAL(activated(QSystemTrayIcon::ActivationReason)),this,SLOT(showHide(QSystemTrayIcon::ActivationReason)));
 }
@@ -64,6 +67,7 @@ void MainWindow::set_values()
     {
         QString iniDefaultData = "[BING-SETTINGS]\n"
                 "binglocation=en-US\n"
+                "country=USA\n"
                 "resolution=1920x1080\n"
                 "\n"
                 "[SETTINGS]\n"
@@ -97,6 +101,7 @@ void MainWindow::set_values()
     settings.beginGroup("BING-SETTINGS");
     _resolution = settings.value("resolution","").toString();
     _binglocation = settings.value("binglocation","").toString();
+    _country = settings.value("country","").toString();
     settings.endGroup();
 
     settings.beginGroup("SETTINGS");
@@ -116,7 +121,7 @@ void MainWindow::set_values()
     _Provider = settings.value("Provider","").toString();
     settings.endGroup();
 
-    _appVersion = "1.2";
+    _appVersion = "1.3";
     _write_AppVersion();
 
     if (_Autostart == true)
@@ -184,10 +189,64 @@ void MainWindow::set_menu_item()
     autostart_and_menuitem.set_menuitem();
 }
 
+void MainWindow::init_descriptionImage()
+{
+    _loadImage.load(_WallpaperDir+"/background.jpg");
+}
+
 void MainWindow::init_MainContextMenu()
 {
+    init_descriptionImage();
+
     menu = new QMenu(this);
 
+    // Init Widgets to show title, thumbnail of the background and
+    // description in the context menu
+
+    QWidget* _descWidget = new QWidget();
+    QVBoxLayout* dL = new QVBoxLayout();
+    auto _widgetaction = new QWidgetAction(parent());
+    QLabel * _imageLabel = new QLabel();
+    QLabel * _labelTitle = new QLabel();
+    QLabel * _labelBingLocation = new QLabel("Bing Location: "+_country);
+    QLabel * _labelDescription = new QLabel(_tooltip_message);
+
+    if(_Provider =="Bing") {
+        _labelTitle->setText("Bing Wallpaper of the Day");
+    }
+    if(_Provider =="WindowsSpotlight") {
+        _labelTitle->setText("Wallpaper of Windows Spotlight");
+        _labelBingLocation->hide();
+    }
+
+    _descImage = _loadImage.scaled(280,150, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+    _imageLabel->setPixmap(QPixmap::fromImage(_descImage));
+
+    _labelBingLocation->setWordWrap(true);
+    _labelBingLocation->setStyleSheet("font: 8pt");
+
+    _labelDescription->setWordWrap(true);
+    _labelDescription->setStyleSheet("font: 8pt; font-style: italic");
+
+    _labelTitle->setStyleSheet("font: 8pt; font-weight: bold");
+
+    if(wallpaper_from_Host==true){
+        _labelTitle->hide();
+        _labelDescription->hide();
+    }
+
+    dL->addWidget(_labelTitle);
+    dL->addWidget(_imageLabel);
+    dL->addWidget(_labelBingLocation);
+    dL->addWidget(_labelDescription);
+    _descWidget->setLayout(dL);
+    _descWidget->show();
+    _widgetaction->setDefaultWidget(_descWidget);
+
+    menu->addAction(_widgetaction);
+    menu->addSeparator();
+
+    //Init provider specific context menu items
     if (_Provider == "Bing")
     {
         QPixmap refresh(":icons/Download.png");
@@ -263,7 +322,7 @@ void MainWindow::init_MainContextMenu()
         connect(_1280x720_, SIGNAL(triggered()), this, SLOT(_menu_bingRes_1280x720_click()));
         connect(_1024x768_, SIGNAL(triggered()), this, SLOT(_menu_bingRes_1024x768_click()));
 
-        // set item
+        // set resolution-item
         if(_resolution=="1920x1200") {
             _1920x1200_->setChecked(true);
         } else if(_resolution=="1920x1080") {
@@ -279,6 +338,9 @@ void MainWindow::init_MainContextMenu()
 
     if (_Provider == "WindowsSpotlight")
     {
+        //init_descriptionWidget();
+        //menu->addAction(_widgetaction);
+
         QPixmap refresh(":icons/Download.png");
         QAction * wspotRef = menu->addAction(refresh, trUtf8("Refresh Wallpaper"));
 
@@ -338,9 +400,7 @@ void MainWindow::init_MainContextMenu()
 
 void MainWindow::init_SystemTrayIcon()
 {
-
     mSystemTrayIcon->setIcon(QIcon(":/128.png"));
-
     mSystemTrayIcon->setContextMenu(menu);
     mSystemTrayIcon->show();
     mSystemTrayIcon->setVisible(true);
@@ -352,6 +412,15 @@ void MainWindow::_show_photobrowser_click()
    _photobrowser.setModal(true);
    _photobrowser.exec();
    mSystemTrayIcon->setToolTip("");
+
+   if (_photobrowser.wallchanged==true) {
+       if(wallpaper_from_Host==false){
+            wallpaper_from_Host = true;
+       }
+        init_descriptionImage();
+        init_MainContextMenu();
+        mSystemTrayIcon->setContextMenu(menu);
+   }
 }
 
 void MainWindow::_menu_settings_click()
@@ -371,7 +440,6 @@ void MainWindow::_menu_about_click()
     _about_win.setFixedSize(_about_win.size());
     _about_win.setModal(true);
     _about_win.exec();
-
 }
 
 void MainWindow::_menu_winspot_wall_option_click()
@@ -410,6 +478,7 @@ void MainWindow::_wspotRef_click()
 void MainWindow::_menu_usa_click()
 {
     _selected_binglocation = "en-US";
+    _country="USA";
     _write_binglocation_settings();
     _setBingWallpaper();
 }
@@ -417,6 +486,7 @@ void MainWindow::_menu_usa_click()
 void MainWindow::_menu_japan_click()
 {
     _selected_binglocation = "ja-JP";
+    _country="Japan";
     _write_binglocation_settings();
     _setBingWallpaper();
 }
@@ -431,6 +501,7 @@ void MainWindow::_menu_china_click()
 void MainWindow::_menu_australia_click()
 {
     _selected_binglocation = "en-AU";
+    _country="Australia";
     _write_binglocation_settings();
     _setBingWallpaper();
 }
@@ -438,6 +509,7 @@ void MainWindow::_menu_australia_click()
 void MainWindow::_menu_gb_click()
 {
     _selected_binglocation = "en-GB";
+    _country="Great Britain";
     _write_binglocation_settings();
     _setBingWallpaper();
 }
@@ -445,6 +517,7 @@ void MainWindow::_menu_gb_click()
 void MainWindow::_menu_germany_click()
 {
     _selected_binglocation = "de-DE";
+    _country="Germany";
     _write_binglocation_settings();
     _setBingWallpaper();
 }
@@ -452,6 +525,7 @@ void MainWindow::_menu_germany_click()
 void MainWindow::_menu_canada_click()
 {
     _selected_binglocation = "en-CA";
+    _country="Canada";
     _write_binglocation_settings();
     _setBingWallpaper();
 }
@@ -459,6 +533,7 @@ void MainWindow::_menu_canada_click()
 void MainWindow::_menu_nz_click()
 {
     _selected_binglocation = "en-NZ";
+    _country="New Zealand";
     _write_binglocation_settings();
     _setBingWallpaper();
 }
@@ -466,6 +541,7 @@ void MainWindow::_menu_nz_click()
 void MainWindow::_menu_brazil_click()
 {
     _selected_binglocation = "pt-BR";
+    _country="Brazil";
     _write_binglocation_settings();
     _setBingWallpaper();
 }
@@ -473,6 +549,7 @@ void MainWindow::_menu_brazil_click()
 void MainWindow::_menu_france_click()
 {
     _selected_binglocation = "fr-FR";
+    _country="France";
     _write_binglocation_settings();
     _setBingWallpaper();
 }
@@ -528,6 +605,7 @@ void MainWindow::_write_binglocation_settings()
 
     _bingLocation_settings.beginGroup("BING-SETTINGS");
     _bingLocation_settings.setValue("binglocation", _selected_binglocation);
+    _bingLocation_settings.setValue("country", _country);
     _bingLocation_settings.endGroup();
     _bingLocation_settings.sync();
 }
@@ -565,6 +643,7 @@ void MainWindow::_check_internet_connection()
 
     if (reply->bytesAvailable())
     {
+        wallpaper_from_Host = false;
         _keeporremove_old_wallpaper();
         if(_Provider =="Bing") {
             getbingwallpaper.get_bing_wallpaper();
@@ -577,6 +656,7 @@ void MainWindow::_check_internet_connection()
     }
     else
     {
+        wallpaper_from_Host = true;
         _tooltip_title ="Error";
         _tooltip_message = "Connection to the internet failed!";
         _show_tooltip();
@@ -645,12 +725,22 @@ void MainWindow::_setBingWallpaper()
 {
     _check_internet_connection();
     _show_tooltip();
+    init_descriptionImage();
     _setwall._set_wallpaper();
+
+    //init MainContextMenu and set new to refresh the description Image
+    init_MainContextMenu();
+    mSystemTrayIcon->setContextMenu(menu);
 }
 
 void MainWindow::_setWinSpotWallpaper()
 {
     _check_internet_connection();
     _show_tooltip();
+    init_descriptionImage();
     _setwall._set_wallpaper();
+
+    //init MainContextMenu and set new to refresh the description Image
+    init_MainContextMenu();
+    mSystemTrayIcon->setContextMenu(menu);
 }
