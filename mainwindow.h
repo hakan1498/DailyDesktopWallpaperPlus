@@ -57,6 +57,7 @@ private slots:
     void _menu_bingRes_1024x768_click();
     void _wspotRef_click();
     void _show_photobrowser_click();
+    void _gotoBing_click();
     void showHide(QSystemTrayIcon::ActivationReason r);
 
 private:

@@ -27,5 +27,6 @@
         <file>icons/Check_256x256.png</file>
         <file>icons/Cancel_256x256.png</file>
         <file>icons/Upload.png</file>
+        <file>icons/Info.png</file>
     </qresource>
 </RCC>

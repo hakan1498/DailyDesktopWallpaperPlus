@@ -18,6 +18,8 @@
 #include <QLabel>
 #include <QVBoxLayout>
 #include <QWidgetAction>
+#include <QUrl>
+#include <QDesktopServices>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -338,11 +340,15 @@ void MainWindow::init_MainContextMenu()
 
     if (_Provider == "WindowsSpotlight")
     {
+        QPixmap _gotoBing(":icons/Info.png");
+        QAction * gotoBing = menu->addAction(_gotoBing, trUtf8("Show description on Bing"));
+
         QPixmap refresh(":icons/Download.png");
         QAction * wspotRef = menu->addAction(refresh, trUtf8("Refresh Wallpaper"));
 
         menu->addSeparator();
 
+        connect(gotoBing, SIGNAL(triggered()), this, SLOT(_gotoBing_click()));
         connect(wspotRef, SIGNAL(triggered()), this, SLOT(_wspotRef_click()));
     }
 
@@ -470,6 +476,11 @@ void MainWindow::_menu_bingRefresh_click()
 void MainWindow::_wspotRef_click()
 {
     _setWinSpotWallpaper();
+}
+
+void MainWindow::_gotoBing_click()
+{
+    QDesktopServices::openUrl(QUrl(getwinspotwallpaper._bing_searchlink));
 }
 
 void MainWindow::_menu_usa_click()

@@ -15,7 +15,7 @@ public:
     QByteArray downloadedPhotoData() const;
     QString _wspot_photo_description;
     QString _wspot_title_text;
-    QString _wspot_copyright_text;
+    QString _bing_searchlink;
 
     void get_wallpaper();
     void parse_json_wspot();
