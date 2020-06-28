@@ -15,7 +15,6 @@
 #include <QtNetwork/QNetworkRequest>
 #include <QtNetwork/QNetworkReply>
 #include <QtNetwork/QNetworkAccessManager>
-#include <QWidgetAction>
 
 namespace Ui {
 class MainWindow;
@@ -58,7 +57,7 @@ private slots:
     void _wspotRef_click();
     void _show_photobrowser_click();
     void _gotoBing_click();
-    void showHide(QSystemTrayIcon::ActivationReason r);
+    void slotActive(QSystemTrayIcon::ActivationReason r);
 
 private:
     Ui::MainWindow *ui;
@@ -97,6 +96,7 @@ private:
     bool _SaveOldWallpaper;
     bool _AutoChange;
     bool _create_menu_item;
+    bool _IsUnity;
 
     void set_values();
     void set_autostart();
@@ -119,6 +119,7 @@ private:
     void init_descriptionImage();
     void init_MainContextMenu();
     void init_SystemTrayIcon();
+    void updateContextMenu();
 };
 
 #endif // MAINWINDOW_H

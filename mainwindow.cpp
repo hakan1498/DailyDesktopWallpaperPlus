@@ -20,6 +20,7 @@
 #include <QWidgetAction>
 #include <QUrl>
 #include <QDesktopServices>
+#include <QtGlobal>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -27,6 +28,17 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     qApp->setAttribute(Qt::AA_DontShowIconsInMenus, false);
+
+    QString _usedDesktop = qgetenv("XDG_SESSION_DESKTOP");
+    _IsUnity=false;
+
+    if(_usedDesktop=="ubuntu") {
+        _IsUnity=true;
+    }
+    /*
+    if(_usedDesktop=="cinnamon"){
+        _IsUnityOrCinnamon=true;
+    }*/
 
     _iniFilePath = QDir::homePath()+"/.DailyDesktopWallpaperPlus/settings.ini";
     mSystemTrayIcon = new QSystemTrayIcon(this);
@@ -37,20 +49,19 @@ MainWindow::MainWindow(QWidget *parent) :
     init_MainContextMenu();
     init_SystemTrayIcon();
 
-    connect(mSystemTrayIcon,SIGNAL(activated(QSystemTrayIcon::ActivationReason)),this,SLOT(showHide(QSystemTrayIcon::ActivationReason)));
-}
-
-void MainWindow::showHide(QSystemTrayIcon::ActivationReason r)
-{
-    if (r == QSystemTrayIcon::Trigger)
-        {
-            menu->exec(QCursor::pos());
-        }
+    connect(mSystemTrayIcon,SIGNAL(activated(QSystemTrayIcon::ActivationReason)),this,SLOT(slotActive(QSystemTrayIcon::ActivationReason)));
 }
 
 MainWindow::~MainWindow()
 {
     delete ui;
+}
+
+void MainWindow::slotActive(QSystemTrayIcon::ActivationReason r)
+{
+    if (r == QSystemTrayIcon::Trigger) {
+            menu->exec(QCursor::pos());
+    }
 }
 
 void MainWindow::set_values()
@@ -123,7 +134,7 @@ void MainWindow::set_values()
     _Provider = settings.value("Provider","").toString();
     settings.endGroup();
 
-    _appVersion = "1.3";
+    _appVersion = "1.4";
     _write_AppVersion();
 
     if (_Autostart == true)
@@ -202,51 +213,54 @@ void MainWindow::init_MainContextMenu()
 
     menu = new QMenu(this);
 
-    // Init Widgets to show title, thumbnail of the Wallpaper and
-    // description in the context menu
+    if(_IsUnity==false) {
+        // If you NOT use Unity(Ubuntu) or Cinnamon; See QTBUG-26840: https://bugreports.qt.io/browse/QTBUG-26840
+        // Init Widgets to show title, thumbnail of the Wallpaper and
+        // description in the context menu
 
-    QWidget* _descWidget = new QWidget();
-    QVBoxLayout* dL = new QVBoxLayout();
-    auto _widgetaction = new QWidgetAction(parent());
-    QLabel * _imageLabel = new QLabel();
-    QLabel * _labelTitle = new QLabel();
-    QLabel * _labelBingLocation = new QLabel("Bing Location: "+_country);
-    QLabel * _labelDescription = new QLabel(_tooltip_message);
+        QWidget* _descWidget = new QWidget();
+        QVBoxLayout* dL = new QVBoxLayout();
+        QWidgetAction * _widgetaction = new QWidgetAction(menu);
+        QLabel * _imageLabel = new QLabel();
+        QLabel * _labelTitle = new QLabel();
+        QLabel * _labelBingLocation = new QLabel("Bing Location: "+_country);
+        QLabel * _labelDescription = new QLabel(_tooltip_message);
 
-    if(_Provider =="Bing") {
-        _labelTitle->setText("Bing Wallpaper of the Day");
+        if(_Provider =="Bing") {
+            _labelTitle->setText("Bing Wallpaper of the Day");
+        }
+        if(_Provider =="WindowsSpotlight") {
+            _labelTitle->setText("Wallpaper of Windows Spotlight");
+            _labelBingLocation->hide();
+        }
+
+        _descImage = _loadImage.scaled(280,150, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+        _imageLabel->setPixmap(QPixmap::fromImage(_descImage));
+
+        _labelBingLocation->setWordWrap(true);
+        _labelBingLocation->setStyleSheet("font: 8pt");
+
+        _labelDescription->setWordWrap(true);
+        _labelDescription->setStyleSheet("font: 8pt; font-style: italic");
+
+        _labelTitle->setStyleSheet("font: 8pt; font-weight: bold");
+
+        if(wallpaper_from_Host==true){
+            _labelTitle->hide();
+            _labelDescription->hide();
+        }
+
+        dL->addWidget(_labelTitle);
+        dL->addWidget(_imageLabel);
+        dL->addWidget(_labelBingLocation);
+        dL->addWidget(_labelDescription);
+        _descWidget->setLayout(dL);
+        _descWidget->show();
+        _widgetaction->setDefaultWidget(_descWidget);
+
+        menu->addAction(_widgetaction);
+        menu->addSeparator();
     }
-    if(_Provider =="WindowsSpotlight") {
-        _labelTitle->setText("Wallpaper of Windows Spotlight");
-        _labelBingLocation->hide();
-    }
-
-    _descImage = _loadImage.scaled(280,150, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-    _imageLabel->setPixmap(QPixmap::fromImage(_descImage));
-
-    _labelBingLocation->setWordWrap(true);
-    _labelBingLocation->setStyleSheet("font: 8pt");
-
-    _labelDescription->setWordWrap(true);
-    _labelDescription->setStyleSheet("font: 8pt; font-style: italic");
-
-    _labelTitle->setStyleSheet("font: 8pt; font-weight: bold");
-
-    if(wallpaper_from_Host==true){
-        _labelTitle->hide();
-        _labelDescription->hide();
-    }
-
-    dL->addWidget(_labelTitle);
-    dL->addWidget(_imageLabel);
-    dL->addWidget(_labelBingLocation);
-    dL->addWidget(_labelDescription);
-    _descWidget->setLayout(dL);
-    _descWidget->show();
-    _widgetaction->setDefaultWidget(_descWidget);
-
-    menu->addAction(_widgetaction);
-    menu->addSeparator();
 
     //Init provider specific context menu items
     if (_Provider == "Bing")
@@ -404,7 +418,9 @@ void MainWindow::init_MainContextMenu()
 void MainWindow::init_SystemTrayIcon()
 {
     mSystemTrayIcon->setIcon(QIcon(":/128.png"));
-    mSystemTrayIcon->setContextMenu(menu);
+    if(_IsUnity==true){
+        mSystemTrayIcon->setContextMenu(menu);
+    }
     mSystemTrayIcon->show();
     mSystemTrayIcon->setVisible(true);
 }
@@ -420,9 +436,8 @@ void MainWindow::_show_photobrowser_click()
        if(wallpaper_from_Host==false){
             wallpaper_from_Host = true;
        }
-        init_descriptionImage();
-        init_MainContextMenu();
-        mSystemTrayIcon->setContextMenu(menu);
+       init_descriptionImage();
+       updateContextMenu();
    }
 }
 
@@ -433,8 +448,7 @@ void MainWindow::_menu_settings_click()
     _sett_win.setModal(true);
     _sett_win.exec();
     set_values();
-    init_MainContextMenu();
-    mSystemTrayIcon->setContextMenu(menu);
+    updateContextMenu();
 }
 
 void MainWindow::_menu_about_click()
@@ -450,8 +464,7 @@ void MainWindow::_menu_winspot_wall_option_click()
     _Provider = "WindowsSpotlight";
     _write_provider_settings();
     menu->clear();
-    init_MainContextMenu();
-    mSystemTrayIcon->setContextMenu(menu);
+    updateContextMenu();
     _setWinSpotWallpaper();
     // set item
     _bing_wall_option->setChecked(false);
@@ -462,8 +475,7 @@ void MainWindow::_menu_bing_wall_option_click()
     _Provider = "Bing";
     _write_provider_settings();
     menu->clear();
-    init_MainContextMenu();
-    mSystemTrayIcon->setContextMenu(menu);
+    updateContextMenu();
     _setBingWallpaper();
     _winspot_wall_option->setChecked(false);
 }
@@ -735,10 +747,7 @@ void MainWindow::_setBingWallpaper()
     _show_tooltip();
     init_descriptionImage();
     _setwall._set_wallpaper();
-
-    //init MainContextMenu and set new to refresh the description Image
-    init_MainContextMenu();
-    mSystemTrayIcon->setContextMenu(menu);
+    updateContextMenu();
 }
 
 void MainWindow::_setWinSpotWallpaper()
@@ -747,8 +756,14 @@ void MainWindow::_setWinSpotWallpaper()
     _show_tooltip();
     init_descriptionImage();
     _setwall._set_wallpaper();
+    updateContextMenu();
+}
 
-    //init MainContextMenu and set new to refresh the description Image
+void MainWindow::updateContextMenu()
+{
+    //init MainContextMenu and set new to refresh the description and the Wallpaper-thumbnail
     init_MainContextMenu();
-    mSystemTrayIcon->setContextMenu(menu);
+    if(_IsUnity==true){
+        mSystemTrayIcon->setContextMenu(menu);
+    }
 }
