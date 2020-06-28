@@ -35,10 +35,6 @@ MainWindow::MainWindow(QWidget *parent) :
     if(_usedDesktop=="ubuntu") {
         _IsUnity=true;
     }
-    /*
-    if(_usedDesktop=="cinnamon"){
-        _IsUnityOrCinnamon=true;
-    }*/
 
     _iniFilePath = QDir::homePath()+"/.DailyDesktopWallpaperPlus/settings.ini";
     mSystemTrayIcon = new QSystemTrayIcon(this);
@@ -214,7 +210,7 @@ void MainWindow::init_MainContextMenu()
     menu = new QMenu(this);
 
     if(_IsUnity==false) {
-        // If you NOT use Unity(Ubuntu) or Cinnamon; See QTBUG-26840: https://bugreports.qt.io/browse/QTBUG-26840
+        // If you NOT use Unity(Ubuntu); See QTBUG-26840: https://bugreports.qt.io/browse/QTBUG-26840
         // Init Widgets to show title, thumbnail of the Wallpaper and
         // description in the context menu
 
