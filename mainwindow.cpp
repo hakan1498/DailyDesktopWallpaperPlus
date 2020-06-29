@@ -130,7 +130,7 @@ void MainWindow::set_values()
     _Provider = settings.value("Provider","").toString();
     settings.endGroup();
 
-    _appVersion = "1.4";
+    _appVersion = "1.5";
     _write_AppVersion();
 
     if (_Autostart == true)
@@ -244,6 +244,9 @@ void MainWindow::init_MainContextMenu()
         if(wallpaper_from_Host==true){
             _labelTitle->hide();
             _labelDescription->hide();
+            if(_Provider =="Bing") {
+                _labelBingLocation->hide();
+            }
         }
 
         dL->addWidget(_labelTitle);
