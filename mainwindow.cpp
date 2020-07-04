@@ -134,7 +134,7 @@ void MainWindow::set_values()
     _Provider = settings.value("Provider","").toString();
     settings.endGroup();
 
-    _appVersion = "1.6";
+    _appVersion = "1.7";
     _write_AppVersion();
 
     if (_Autostart == true)
@@ -253,6 +253,10 @@ void MainWindow::init_MainContextMenu()
             QLabel * _labelTitle = new QLabel();
             QLabel * _labelBingLocation = new QLabel("Bing Location: "+_country);
             QLabel * _labelDescription = new QLabel(_tooltip_message);
+            _imageLabel->setAlignment(Qt::AlignCenter);
+            _labelTitle->setAlignment(Qt::AlignCenter);
+            _labelBingLocation->setAlignment(Qt::AlignCenter);
+            _labelDescription->setAlignment(Qt::AlignCenter);
 
             if(_Provider =="Bing") {
                 _labelTitle->setText("Bing Wallpaper of the Day");
@@ -269,9 +273,9 @@ void MainWindow::init_MainContextMenu()
             _labelBingLocation->setStyleSheet("font: 8pt");
 
             _labelDescription->setWordWrap(true);
-            _labelDescription->setStyleSheet("font: 8pt; font-style: italic");
+            _labelDescription->setStyleSheet("font: 8pt; font-style: italic; text-align:center;");
 
-            _labelTitle->setStyleSheet("font: 8pt; font-weight: bold");
+            _labelTitle->setStyleSheet("font: 8pt; font-weight: bold; text-align:center;");
 
             if(wallpaper_from_Host==true){
                 _labelTitle->hide();
