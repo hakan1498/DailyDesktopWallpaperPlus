@@ -1,4 +1,5 @@
 #include "getwinspotwallpaper.h"
+#include "createfilename.h"
 
 #include <QUrl>
 #include <QObject>
@@ -173,11 +174,14 @@ QByteArray GetWinSpotWallpaper::downloadedPhotoData() const {
     return downloaded_photo_data;
 }
 
-void GetWinSpotWallpaper::saveImage() {
-
+void GetWinSpotWallpaper::saveImage()
+{
     read_settings();
 
-    QString filename = _WallpaperDir+"/"+"background.jpg";
+    CreateFilename _createfilename;
+    _createfilename.createFilename();
+
+    QString filename = _WallpaperDir+"/"+_createfilename.filename_new2;
 
     QPixmap photo_wallpaper;
     photo_wallpaper.loadFromData(downloadedPhotoData());

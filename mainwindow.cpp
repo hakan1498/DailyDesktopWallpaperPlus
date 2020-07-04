@@ -2,11 +2,13 @@
 #include "ui_mainwindow.h"
 #include "photobrowser.h"
 
+#include <iostream>
 #include <cstdio>
 #include <ctime>
 #include <QFile>
 #include <QDir>
 #include <QFileInfo>
+#include <QFileInfoList>
 #include <QSettings>
 #include <QTextStream>
 #include <QProcess>
@@ -41,6 +43,8 @@ MainWindow::MainWindow(QWidget *parent) :
 
     set_values();
     check_dir();
+    checkFiles();
+    detectFilename();
     load_wallpaper();
     init_MainContextMenu();
     init_SystemTrayIcon();
@@ -130,7 +134,7 @@ void MainWindow::set_values()
     _Provider = settings.value("Provider","").toString();
     settings.endGroup();
 
-    _appVersion = "1.5";
+    _appVersion = "1.6";
     _write_AppVersion();
 
     if (_Autostart == true)
@@ -168,6 +172,33 @@ void MainWindow::check_dir()
     }
 }
 
+void MainWindow::detectFilename()
+{
+    QDir wallDir(_WallpaperDir);
+    QFileInfoList WallpaperList = wallDir.entryInfoList(QStringList() << "*.jpg", QDir::Files);
+    int totalfiles = WallpaperList.size();
+    int minFile = 1;
+    if (!(minFile > totalfiles))
+    {
+        // if in the selected wallpaper directory are different photo files,
+        // that are not wallpaperfiles, then filter it
+        // the filename of the wallpaperfiles of DailyDesktopWallpaperPlus
+        // contains in the filename "background".
+
+        for (int i = 0; i < totalfiles; i++) {
+            QString _picturefile = WallpaperList[0].baseName()+".jpg";
+            if(_picturefile.contains("-background.jpg")){
+                _wallpaperfile = WallpaperList[0].baseName()+".jpg";
+            }
+        }
+    }
+    if (minFile > totalfiles)
+    {
+        // Set a content in the qstring to avoid a crash
+        _wallpaperfile = "NULL";
+    }
+}
+
 void MainWindow::load_wallpaper()
 {
     if(_Provider =="Bing") {
@@ -200,7 +231,7 @@ void MainWindow::set_menu_item()
 
 void MainWindow::init_descriptionImage()
 {
-    _loadImage.load(_WallpaperDir+"/background.jpg");
+    _loadImage.load(_WallpaperDir+"/"+_wallpaperfile);
 }
 
 void MainWindow::init_MainContextMenu()
@@ -209,56 +240,58 @@ void MainWindow::init_MainContextMenu()
 
     menu = new QMenu(this);
 
-    if(_IsUnity==false) {
-        // If you NOT use Unity(Ubuntu); See QTBUG-26840: https://bugreports.qt.io/browse/QTBUG-26840
-        // Init Widgets to show title, thumbnail of the Wallpaper and
-        // description in the context menu
+    // If you NOT use Unity(Ubuntu); See QTBUG-26840: https://bugreports.qt.io/browse/QTBUG-26840
+    // Init Widgets to show title, thumbnail of the Wallpaper and
+    // description in the context menu
+    if(_IsUnity==false) { 
+        if(!(_wallpaperfile=="NULL"))
+        {
+            QWidget* _descWidget = new QWidget();
+            QVBoxLayout* dL = new QVBoxLayout();
+            QWidgetAction * _widgetaction = new QWidgetAction(menu);
+            QLabel * _imageLabel = new QLabel();
+            QLabel * _labelTitle = new QLabel();
+            QLabel * _labelBingLocation = new QLabel("Bing Location: "+_country);
+            QLabel * _labelDescription = new QLabel(_tooltip_message);
 
-        QWidget* _descWidget = new QWidget();
-        QVBoxLayout* dL = new QVBoxLayout();
-        QWidgetAction * _widgetaction = new QWidgetAction(menu);
-        QLabel * _imageLabel = new QLabel();
-        QLabel * _labelTitle = new QLabel();
-        QLabel * _labelBingLocation = new QLabel("Bing Location: "+_country);
-        QLabel * _labelDescription = new QLabel(_tooltip_message);
-
-        if(_Provider =="Bing") {
-            _labelTitle->setText("Bing Wallpaper of the Day");
-        }
-        if(_Provider =="WindowsSpotlight") {
-            _labelTitle->setText("Wallpaper of Windows Spotlight");
-            _labelBingLocation->hide();
-        }
-
-        _descImage = _loadImage.scaled(280,150, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-        _imageLabel->setPixmap(QPixmap::fromImage(_descImage));
-
-        _labelBingLocation->setWordWrap(true);
-        _labelBingLocation->setStyleSheet("font: 8pt");
-
-        _labelDescription->setWordWrap(true);
-        _labelDescription->setStyleSheet("font: 8pt; font-style: italic");
-
-        _labelTitle->setStyleSheet("font: 8pt; font-weight: bold");
-
-        if(wallpaper_from_Host==true){
-            _labelTitle->hide();
-            _labelDescription->hide();
             if(_Provider =="Bing") {
+                _labelTitle->setText("Bing Wallpaper of the Day");
+            }
+            if(_Provider =="WindowsSpotlight") {
+                _labelTitle->setText("Wallpaper of Windows Spotlight");
                 _labelBingLocation->hide();
             }
+
+            _descImage = _loadImage.scaled(280,150, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+            _imageLabel->setPixmap(QPixmap::fromImage(_descImage));
+
+            _labelBingLocation->setWordWrap(true);
+            _labelBingLocation->setStyleSheet("font: 8pt");
+
+            _labelDescription->setWordWrap(true);
+            _labelDescription->setStyleSheet("font: 8pt; font-style: italic");
+
+            _labelTitle->setStyleSheet("font: 8pt; font-weight: bold");
+
+            if(wallpaper_from_Host==true){
+                _labelTitle->hide();
+                _labelDescription->hide();
+                if(_Provider =="Bing") {
+                    _labelBingLocation->hide();
+                }
+            }
+
+            dL->addWidget(_labelTitle);
+            dL->addWidget(_imageLabel);
+            dL->addWidget(_labelBingLocation);
+            dL->addWidget(_labelDescription);
+            _descWidget->setLayout(dL);
+            _descWidget->show();
+            _widgetaction->setDefaultWidget(_descWidget);
+
+            menu->addAction(_widgetaction);
+            menu->addSeparator();
         }
-
-        dL->addWidget(_labelTitle);
-        dL->addWidget(_imageLabel);
-        dL->addWidget(_labelBingLocation);
-        dL->addWidget(_labelDescription);
-        _descWidget->setLayout(dL);
-        _descWidget->show();
-        _widgetaction->setDefaultWidget(_descWidget);
-
-        menu->addAction(_widgetaction);
-        menu->addSeparator();
     }
 
     //Init provider specific context menu items
@@ -672,6 +705,7 @@ void MainWindow::_check_internet_connection()
             getwinspotwallpaper.get_wallpaper();
             set_tooltip_string();
         }
+        detectFilename();
     }
     else
     {
@@ -686,36 +720,15 @@ void MainWindow::_keeporremove_old_wallpaper()
 {
     if (_SaveOldWallpaper == true)
     {
-        QString filename = "background.jpg";
-        QString filename_new = "background_old.jpg";
-
-        QFile old_bgfile(_OldWallpaperDir+"/"+filename_new);
-
-        if(old_bgfile.exists()) {
-            //create timestamp
-            std::time_t rawtime;
-            std::tm* timeinfo;
-            char timestamp [80];
-            std::time(&rawtime);
-            timeinfo = std::localtime(&rawtime);
-            std::strftime(timestamp,80,"%Y-%m-%d-%H-%M-%S",timeinfo);
-            std::puts(timestamp);
-
-            QString tmstmp = timestamp;
-
-            QString filename_new2 = "background"+tmstmp+".jpg";
-            QFile::copy(_OldWallpaperDir+"/"+filename_new, _OldWallpaperDir+"/"+filename_new2);
-
-            old_bgfile.remove();
-    }
-        QFile::copy(_WallpaperDir+"/"+filename, _OldWallpaperDir+"/"+filename_new);
-
-        QFile _current_backgroundfile(_WallpaperDir+"/"+filename);
-        _current_backgroundfile.remove();
+        if(!(_wallpaperfile == "NULL")) {
+            QFile::copy(_WallpaperDir+"/"+_wallpaperfile, _OldWallpaperDir+"/"+_wallpaperfile);
+            QFile old_bgfile(_WallpaperDir+"/"+_wallpaperfile);
+            old_bgfile.remove(_WallpaperDir+"/"+_wallpaperfile);
+        }
     }
     else
     {
-        QFile background_file(_WallpaperDir+"/background.jpg");
+        QFile background_file(_WallpaperDir+"/"+_wallpaperfile);
         background_file.remove();
     }
 }
@@ -756,6 +769,28 @@ void MainWindow::_setWinSpotWallpaper()
     init_descriptionImage();
     _setwall._set_wallpaper();
     updateContextMenu();
+}
+
+void MainWindow::checkFiles()
+{
+    // check if more than one picturefile in the directory
+    // If more than one file in the directory, then remove it (e.g. after a crash to remove corrupt files)
+    QDir wallDir(_WallpaperDir);
+    QFileInfoList WallpaperList = wallDir.entryInfoList(QStringList() << "*.jpg", QDir::Files);
+    int totalfiles = WallpaperList.size();
+    int minFile = 2;
+    if (minFile <= totalfiles)
+    {
+        for (int a = 0; a < totalfiles; a++)
+        {
+            QString _picturefile = _WallpaperDir+"/"+WallpaperList[a].baseName()+".jpg";
+            if(_picturefile.contains("-background.jpg"))
+            {
+                QFile file(_picturefile);
+                file.remove();
+            }
+        }
+    }
 }
 
 void MainWindow::updateContextMenu()

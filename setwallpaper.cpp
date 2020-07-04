@@ -30,55 +30,65 @@ void setWallpaper::_set_wallpaper()
 {
     _read_settings();
 
-    backgroundfile = _WallpaperDir+"/background.jpg";
-    pufferpicture = QDir::homePath()+"/.DailyDesktopWallpaperPlus/pufferpic.jpg";
-    QProcess setWallpaper;
+    QDir wallDir(_WallpaperDir);
+    QFileInfoList WallpaperList = wallDir.entryInfoList(QStringList() << "*.jpg", QDir::Files);
+    int totalfiles = WallpaperList.size();
+    int minFile = 1;
 
-    if(_Parameter==0)
-        //Budgie
-        setWallpaper.execute("gsettings set org.gnome.desktop.background picture-uri  \"file://"+backgroundfile+"\"");
-    else if(_Parameter==1)
-        //Cinnamon
-        setWallpaper.execute("gsettings set org.cinnamon.desktop.background picture-uri  \"file://"+backgroundfile+"\"");
-    else if(_Parameter==2)
-        //DDE
-        setWallpaper.execute("gsettings set com.deepin.wrap.gnome.desktop.background picture-uri \"file://"+backgroundfile+"\"");
-    else if(_Parameter==3)
-        //GNOME
-        setWallpaper.execute("gsettings set org.gnome.desktop.background picture-uri \"file://"+backgroundfile+"\"");
-    else if(_Parameter==4)
-        //MATE
-        setWallpaper.execute("gsettings set org.mate.background picture-filename \""+backgroundfile+"\"");
-    else if(_Parameter==5)
-        //Unity (Ubuntu)
-        setWallpaper.execute("gsettings set org.gnome.desktop.background picture-uri  \"file://"+backgroundfile+"\"");
-    else if(_Parameter==6) {
-        //KDE Plasma 5.x
-        _export_PufferPicture();
-        _create_bashfile();
-        setWallpaper.execute("/bin/bash "+_scriptfile);
-        _remove_bashfile();
-        _remove_pufferpicture();
-        }
-    else if(_Parameter==7)
-        //KDE3.x or TDE
-        setWallpaper.execute("dcop kdesktop KBackgroundIface setWallpaper \""+backgroundfile+"\" 8");
-    else if(_Parameter==8)
-        //LXDE
-        setWallpaper.execute("pcmanfm --set-wallpaper=\""+backgroundfile+"\"");
-    else if(_Parameter==9) {
-        // XFCE
-        // detect all monitors (_xfce4_detect_monitors()); set wallpaper for all monitors in a second part
-        _xfce4_detect_monitors();
-        for (int i = 0; i < _detected_monitors.size(); i++)
+    //check if a file is in the wallpaper directory to avoid a crash
+    if (!(minFile > totalfiles))
+    {
+        _wallpaperfile = _wallpaperfile = _WallpaperDir+"/"+WallpaperList[0].baseName()+".jpg";
+        //check if a file is a wallpaperfile of DailyDesktopWallpaperPlus
+        if(_wallpaperfile.contains("-background.jpg"))
         {
-            QString _selected_monitor = _detected_monitors.at(i);
-            setWallpaper.execute("xfconf-query --channel xfce4-desktop --property "+_selected_monitor+" --set \""+backgroundfile+"\"");
+            QProcess setWallpaper;
 
-            //set delay for 100ms
-            QEventLoop loop;
-                QTimer::singleShot(100, &loop, SLOT(quit()));
-            loop.exec();
+            if(_Parameter==0)
+                //Budgie
+                setWallpaper.execute("gsettings set org.gnome.desktop.background picture-uri  \"file://"+_wallpaperfile+"\"");
+            else if(_Parameter==1)
+                //Cinnamon
+                setWallpaper.execute("gsettings set org.cinnamon.desktop.background picture-uri  \"file://"+_wallpaperfile+"\"");
+            else if(_Parameter==2)
+                //DDE
+                setWallpaper.execute("gsettings set com.deepin.wrap.gnome.desktop.background picture-uri \"file://"+_wallpaperfile+"\"");
+            else if(_Parameter==3)
+                //GNOME
+                setWallpaper.execute("gsettings set org.gnome.desktop.background picture-uri \"file://"+_wallpaperfile+"\"");
+            else if(_Parameter==4)
+                //MATE
+                setWallpaper.execute("gsettings set org.mate.background picture-filename \""+_wallpaperfile+"\"");
+            else if(_Parameter==5)
+                //Unity (Ubuntu)
+                setWallpaper.execute("gsettings set org.gnome.desktop.background picture-uri  \"file://"+_wallpaperfile+"\"");
+            else if(_Parameter==6) {
+                //KDE Plasma 5.x
+                _create_bashfile();
+                setWallpaper.execute("/bin/bash "+_scriptfile);
+                _remove_bashfile();
+                }
+            else if(_Parameter==7)
+                //KDE3.x or TDE
+                setWallpaper.execute("dcop kdesktop KBackgroundIface setWallpaper \""+_wallpaperfile+"\" 8");
+            else if(_Parameter==8)
+                //LXDE
+                setWallpaper.execute("pcmanfm --set-wallpaper=\""+_wallpaperfile+"\"");
+            else if(_Parameter==9) {
+                // XFCE
+                // detect all monitors (_xfce4_detect_monitors()); set wallpaper for all monitors in a second part
+                _xfce4_detect_monitors();
+                for (int i = 0; i < _detected_monitors.size(); i++)
+                {
+                    QString _selected_monitor = _detected_monitors.at(i);
+                    setWallpaper.execute("xfconf-query --channel xfce4-desktop --property "+_selected_monitor+" --set \""+_wallpaperfile+"\"");
+
+                    //set delay for 100ms
+                    QEventLoop loop;
+                        QTimer::singleShot(100, &loop, SLOT(quit()));
+                    loop.exec();
+                }
+            }
         }
     }
 }
@@ -95,14 +105,6 @@ void setWallpaper::_xfce4_detect_monitors()
 
     out = _list_monitors.readAllStandardOutput();
     _detected_monitors = out.split("\n");
-}
-
-void setWallpaper::_export_PufferPicture()
-{
-    //export pufferpic.jpg from RessourceFile to AppDir to set the wallpaper on KDE Plasma 5.x
-
-    QPixmap pufferpicture_export = QPixmap (":/pufferpic.jpg");
-    pufferpicture_export.save(pufferpicture);
 }
 
 void setWallpaper::_create_bashfile()
@@ -128,20 +130,7 @@ void setWallpaper::_create_bashfile()
                 "        d.currentConfigGroup = Array(\"Wallpaper\",\n"
                 "                                    \"org.kde.image\",\n"
                 "                                    \"General\");\n"
-                "        d.writeConfig(\"Image\", \"file://"+pufferpicture+"\");\n"
-                "}'\n"
-                "sleep 0.2\n"
-                " \n"
-                "dbus-send --session --dest=org.kde.plasmashell --type=method_call /PlasmaShell org.kde.PlasmaShell.evaluateScript 'string: \n"
-                "var Desktops = desktops(); \n"
-                "print (Desktops); \n"
-                "for (i=0;i<Desktops.length;i++) {\n"
-                "        d = Desktops[i];\n"
-                "        d.wallpaperPlugin = \"org.kde.image\";\n"
-                "        d.currentConfigGroup = Array(\"Wallpaper\",\n"
-                "                                    \"org.kde.image\",\n"
-                "                                    \"General\");\n"
-                "        d.writeConfig(\"Image\", \"file://"+backgroundfile+"\");\n"
+                "        d.writeConfig(\"Image\", \"file://"+_wallpaperfile+"\");\n"
                 "}'";
 
         if (set_wallpaper_plasma.open(QIODevice::Append))
@@ -156,10 +145,4 @@ void setWallpaper::_remove_bashfile()
 {
     QFile sr(_scriptfile);
     sr.remove();
-}
-
-void setWallpaper::_remove_pufferpicture()
-{
-    QFile pp(pufferpicture);
-    pp.remove();
 }

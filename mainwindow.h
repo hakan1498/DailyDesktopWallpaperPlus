@@ -82,6 +82,7 @@ private:
     QString _binglocation;
     QString _country;
     QString _appVersion;
+    QString _wallpaperfile;
 
     QImage _loadImage;
     QImage _descImage;
@@ -120,6 +121,8 @@ private:
     void init_MainContextMenu();
     void init_SystemTrayIcon();
     void updateContextMenu();
+    void detectFilename();
+    void checkFiles();
 };
 
 #endif // MAINWINDOW_H

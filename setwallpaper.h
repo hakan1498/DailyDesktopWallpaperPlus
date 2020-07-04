@@ -18,6 +18,7 @@ private:
     QString out;
 
     QStringList _detected_monitors;
+    QString _wallpaperfile;
 
     int _Parameter;
 

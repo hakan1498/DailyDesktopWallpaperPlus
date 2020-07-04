@@ -1,4 +1,5 @@
 #include "getbingwallpaper.h"
+#include "createfilename.h"
 
 #include <QUrl>
 #include <QtNetwork/QNetworkRequest>
@@ -175,9 +176,12 @@ QByteArray GetBingWallpaper::downloadedPhotoData() const {
     return downloaded_photo_data;
 }
 
-void GetBingWallpaper::saveImage() {
+void GetBingWallpaper::saveImage()
+{
+    CreateFilename _createfilename;
+    _createfilename.createFilename();
 
-    QString filename = _WallpaperDir+"/"+"background.jpg";
+    QString filename = _WallpaperDir+"/"+_createfilename.filename_new2;
 
     QPixmap photo_wallpaper;
     photo_wallpaper.loadFromData(downloadedPhotoData());

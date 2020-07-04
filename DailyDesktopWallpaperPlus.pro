@@ -27,6 +27,7 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += main.cpp\
+    createfilename.cpp \
     itemdelegate.cpp \
         mainwindow.cpp \
     settingswindow.cpp \
@@ -38,6 +39,7 @@ SOURCES += main.cpp\
     setwallpaper.cpp
 
 HEADERS  += mainwindow.h \
+    createfilename.h \
     itemdelegate.h \
     settingswindow.h \
     getbingwallpaper.h \
