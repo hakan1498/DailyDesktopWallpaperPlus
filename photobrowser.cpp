@@ -1,6 +1,7 @@
 #include "photobrowser.h"
 #include "ui_photobrowser.h"
 #include "itemdelegate.h"
+#include "createfilename.h"
 
 #include <QSize>
 #include <QFile>
@@ -14,6 +15,7 @@
 #include <QtConcurrent/QtConcurrent>
 #include <QThreadPool>
 #include <QCloseEvent>
+#include <QFileInfoList>
 
 PhotoBrowser::PhotoBrowser(QWidget *parent) :
     QDialog(parent),
@@ -123,17 +125,43 @@ void PhotoBrowser::on_pushButton_clicked()
     setWallpaperFile();
 }
 
+void PhotoBrowser::removeWallpaperFile()
+{
+    QDir wallDir(_WallpaperDir);
+    QFileInfoList WallpaperList = wallDir.entryInfoList(QStringList() << "*.jpg", QDir::Files);
+    int totalfiles = WallpaperList.size();
+    int minFile = 1;
+    if (!(minFile > totalfiles))
+    {
+        // if in the selected wallpaper directory are different photo files,
+        // that are not wallpaperfiles, then filter it
+        // the filename of the wallpaperfiles of DailyDesktopWallpaperPlus
+        // contains in the filename "background".
+
+        for (int i = 0; i < totalfiles; i++) {
+            QString _picturefile = WallpaperList[0].baseName()+".jpg";
+            if(_picturefile.contains("-background.jpg"))
+            {
+                _wallpaperfile = WallpaperList[0].baseName()+".jpg";
+                QFile wallfile(_WallpaperDir+"/"+_wallpaperfile);
+                wallfile.remove();
+            }
+        }
+    }
+    if (minFile > totalfiles)
+    {
+        // Set a content in the qstring to avoid a crash
+        _wallpaperfile = "NULL";
+    }
+}
+
 void PhotoBrowser::setWallpaperFile()
 {
+    CreateFilename _createfilename;
+    _createfilename.createFilename();
     QModelIndex index = ui->listView->currentIndex();
     QString _selected_wallpaperfile = index.data(Qt::DisplayRole).toString()+".jpg";
-
-    QString _filename_bg = "background.jpg";
-
-    QFile wallpaperfile(_WallpaperDir+"/background.jpg");
-    wallpaperfile.remove();
-
-    QFile::copy(_OldWallpaperDir+"/"+_selected_wallpaperfile, _WallpaperDir+"/"+_filename_bg);
-
+    removeWallpaperFile();
+    QFile::copy(_OldWallpaperDir+"/"+_selected_wallpaperfile, _WallpaperDir+"/"+_createfilename.filename_new2);
     _setwall._set_wallpaper();
 }

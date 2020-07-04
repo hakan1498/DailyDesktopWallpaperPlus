@@ -462,6 +462,7 @@ void MainWindow::_show_photobrowser_click()
    PhotoBrowser _photobrowser;
    _photobrowser.setModal(true);
    _photobrowser.exec();
+   detectFilename();
    mSystemTrayIcon->setToolTip("");
 
    if (_photobrowser.wallchanged==true) {

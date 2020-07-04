@@ -42,11 +42,13 @@ private:
 
     QString _OldWallpaperDir;
     QString _WallpaperDir;
+    QString _wallpaperfile;
 
     bool running;
 
     void _init_ImageList();
     void _read_path();
+    void removeWallpaperFile();
     void closeEvent(QCloseEvent * event);
     void reject();
 };
