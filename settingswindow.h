@@ -25,7 +25,6 @@ private slots:
     void on_pushButton_clicked();
     void on_pushButton_2_clicked();
     void on_checkBox_3_clicked();
-
     void on_checkBox_4_clicked();
 
 private:
@@ -41,7 +40,6 @@ private:
     bool _AutoChange;
     bool _SaveOldWallpaper;
     bool _create_menu_item;
-    bool _run_on_snapcraft;
     bool _delete_automatically;
 
     int _delete_older_than;
