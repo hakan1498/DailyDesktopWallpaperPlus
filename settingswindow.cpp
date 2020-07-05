@@ -46,6 +46,8 @@ void SettingsWindow::init_settings()
     _Autostart = settings.value("Autostart","").toBool();
     _SaveOldWallpaper = settings.value("SaveOldWallpaper","").toBool();
     _create_menu_item = settings.value("create_menu_item","").toBool();
+    _delete_automatically = settings.value("delete_automatically","").toBool();
+    _delete_older_than = settings.value("delete_older_than","").toInt();
     settings.endGroup();
 
     settings.beginGroup("SETWALLPAPER");
@@ -64,6 +66,8 @@ void SettingsWindow::init_settings()
     ui->lineEdit_2->setReadOnly(true);
     ui->label_3->setEnabled(false);
     ui->comboBox->setEnabled(false);
+    ui->checkBox_4->setEnabled(false);
+    ui->spinBox->setEnabled(false);
 
     ui->lineEdit->setText(_WallpaperDir);
 
@@ -80,6 +84,12 @@ void SettingsWindow::init_settings()
         ui->pushButton_2->setEnabled(true);
         ui->label_2->setEnabled(true);
         ui->lineEdit_2->setText(_OldWallpaperDir);
+        ui->checkBox_4->setEnabled(true);
+        if(_delete_automatically==true) {
+            ui->checkBox_4->setChecked(true);
+            ui->spinBox->setEnabled(true);
+        }
+        ui->spinBox->setValue(_delete_older_than);
     } else
     {
         ui->radioButton_2->setChecked(true);
@@ -121,6 +131,9 @@ void SettingsWindow::write_settings()
     _Autostart = ui->checkBox_2->checkState();
     _AutoChange = ui->checkBox_3->checkState();
 
+    _delete_automatically = ui->checkBox_4->checkState();
+    _delete_older_than = ui->spinBox->value();
+
     if(ui->radioButton->isChecked() == true)
     {
         _SaveOldWallpaper = true;
@@ -144,6 +157,8 @@ void SettingsWindow::write_settings()
     settings.setValue("create_menu_item", _create_menu_item);
 
     if(_SaveOldWallpaper == true) {
+        settings.setValue("delete_automatically", _delete_automatically);
+        settings.setValue("delete_older_than", _delete_older_than);
         settings.setValue("OldWallpaperDir", _OldWallpaperDir);
     }
 
@@ -226,7 +241,6 @@ void SettingsWindow::selectOldWallpaperDir()
     ui->lineEdit_2->setText(select_dir_2);
 }
 
-
 void SettingsWindow::on_checkBox_3_clicked()
 {
     if(ui->checkBox_3->isChecked() == true) {
@@ -235,5 +249,14 @@ void SettingsWindow::on_checkBox_3_clicked()
     } else {
         ui->label_3->setEnabled(false);
         ui->comboBox->setEnabled(false);
+    }
+}
+
+void SettingsWindow::on_checkBox_4_clicked()
+{
+    if(ui->checkBox_4->isChecked() == true) {
+        ui->spinBox->setEnabled(true);
+    } else {
+        ui->spinBox->setEnabled(false);
     }
 }

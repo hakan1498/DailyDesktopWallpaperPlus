@@ -23,6 +23,7 @@
 #include <QUrl>
 #include <QDesktopServices>
 #include <QtGlobal>
+#include <QDate>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -48,6 +49,12 @@ MainWindow::MainWindow(QWidget *parent) :
     load_wallpaper();
     init_MainContextMenu();
     init_SystemTrayIcon();
+
+    if(_SaveOldWallpaper==true) {
+        if(_delete_automatically==true) {
+            delete_backgroundimages();
+        }
+    }
 
     connect(mSystemTrayIcon,SIGNAL(activated(QSystemTrayIcon::ActivationReason)),this,SLOT(slotActive(QSystemTrayIcon::ActivationReason)));
 }
@@ -93,6 +100,8 @@ void MainWindow::set_values()
                 "current_description=\n"
                 "current_title=\n"
                 "create_menu_item=true\n"
+                "delete_automatically=true\n"
+                "delete_older_than=30\n"
                 "\n"
                 "[SETWALLPAPER]\n"
                 "AutoChange=true\n"
@@ -123,6 +132,8 @@ void MainWindow::set_values()
     _OldWallpaperDir = settings.value("OldWallpaperDir","").toString();
     _SaveOldWallpaper = settings.value("SaveOldWallpaper","").toBool();
     _create_menu_item = settings.value("create_menu_item","").toBool();
+    _delete_automatically = settings.value("delete_automatically","").toBool();
+    _delete_older_than = settings.value("delete_older_than","").toInt();
     settings.endGroup();
 
     settings.beginGroup("SETWALLPAPER");
@@ -134,7 +145,7 @@ void MainWindow::set_values()
     _Provider = settings.value("Provider","").toString();
     settings.endGroup();
 
-    _appVersion = "1.7";
+    _appVersion = "1.8";
     _write_AppVersion();
 
     if (_Autostart == true)
@@ -805,4 +816,21 @@ void MainWindow::updateContextMenu()
     if(_IsUnity==true){
         mSystemTrayIcon->setContextMenu(menu);
     }
+}
+
+void MainWindow::delete_backgroundimages()
+{
+    const QDate today = QDate::currentDate();
+
+    Q_FOREACH (auto imageInfo, QDir(_OldWallpaperDir).entryInfoList(QStringList("-background.jpg"), QDir::Files)) {
+      if (imageInfo.fileName().contains("keep")) continue;
+      if (imageInfo.created().date().daysTo(today) > _delete_older_than) {
+          QString filepath = imageInfo.absoluteFilePath();
+          QDir deletefile;
+          deletefile.setPath(filepath);
+          deletefile.remove(filepath);
+          qDebug() << "Image " + filepath + "is deleted.";
+      }
+    }
+
 }

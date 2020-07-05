@@ -91,6 +91,7 @@ private:
     QAction * _winspot_wall_option;
 
     int _Parameter;
+    int _delete_older_than;
 
     bool wallpaper_from_Host;
     bool _Autostart;
@@ -98,6 +99,7 @@ private:
     bool _AutoChange;
     bool _create_menu_item;
     bool _IsUnity;
+    bool _delete_automatically;
 
     void set_values();
     void set_autostart();
@@ -123,6 +125,7 @@ private:
     void updateContextMenu();
     void detectFilename();
     void checkFiles();
+    void delete_backgroundimages();
 };
 
 #endif // MAINWINDOW_H
