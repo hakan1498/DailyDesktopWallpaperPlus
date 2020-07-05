@@ -823,14 +823,13 @@ void MainWindow::delete_backgroundimages()
     const QDate today = QDate::currentDate();
 
     Q_FOREACH (auto imageInfo, QDir(_OldWallpaperDir).entryInfoList(QStringList("-background.jpg"), QDir::Files)) {
-      if (imageInfo.fileName().contains("keep")) continue;
-      if (imageInfo.created().date().daysTo(today) > _delete_older_than) {
-          QString filepath = imageInfo.absoluteFilePath();
-          QDir deletefile;
-          deletefile.setPath(filepath);
-          deletefile.remove(filepath);
-          qDebug() << "Image " + filepath + "is deleted.";
-      }
+        if (imageInfo.fileName().contains("keep")) continue;
+        if (imageInfo.created().date().daysTo(today) > _delete_older_than) {
+            QString filepath = imageInfo.absoluteFilePath();
+            QDir deletefile;
+            deletefile.setPath(filepath);
+            deletefile.remove(filepath);
+            qDebug() << "Image " + filepath + "is deleted.";
+        }
     }
-
 }
