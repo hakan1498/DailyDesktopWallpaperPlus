@@ -11,7 +11,7 @@
  * Download Bing's daily photo from 10 Countries and set automatically as your wallpaper.
  * Download and set the daily photos of Windows Spotlight automatically as your wallpaper.
  * Load and set existing Wallpapers.
- * Automatic change of the wallpaper which are downloaded on numerous Desktops:
+ * Automatic change of the wallpaper which are downloaded works on numerous Desktops:
     * Trinity Desktop Environment
     * K Desktop Environment v3.x
     * KDE Plasma 5
