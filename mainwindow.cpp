@@ -23,7 +23,6 @@
 #include <QUrl>
 #include <QDesktopServices>
 #include <QtGlobal>
-#include <QDate>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -31,13 +30,6 @@ MainWindow::MainWindow(QWidget *parent) :
 {
     ui->setupUi(this);
     qApp->setAttribute(Qt::AA_DontShowIconsInMenus, false);
-
-    QString _usedDesktop = qgetenv("XDG_SESSION_DESKTOP");
-    _IsUnity=false;
-
-    if(_usedDesktop=="ubuntu") {
-        _IsUnity=true;
-    }
 
     _iniFilePath = QDir::homePath()+"/.DailyDesktopWallpaperPlus/settings.ini";
     mSystemTrayIcon = new QSystemTrayIcon(this);
@@ -93,19 +85,17 @@ void MainWindow::set_values()
                 "[SETTINGS]\n"
                 "WallpaperDir="+QDir::homePath()+"/.DailyDesktopWallpaperPlus/background_wallpaper\n"
                 "OldWallpaperDir="+QDir::homePath()+"/.DailyDesktopWallpaperPlus/old_Wallpapers\n"
-                "Autostart=true\n"
+                "Autostart=false\n"
                 "SaveOldWallpaper=true\n"
                 "Provider=Bing\n"
                 "current_photo_dl_url=\n"
                 "current_description=\n"
                 "current_title=\n"
-                "create_menu_item=true\n"
                 "delete_automatically=true\n"
                 "delete_older_than=30\n"
                 "\n"
                 "[SETWALLPAPER]\n"
                 "AutoChange=true\n"
-                "Parameter=0\n"
                 "\n"
                 "[VERSION]\n"
                 "Version="+_appVersion+"\n";
@@ -131,7 +121,6 @@ void MainWindow::set_values()
     _WallpaperDir = settings.value("WallpaperDir","").toString();
     _OldWallpaperDir = settings.value("OldWallpaperDir","").toString();
     _SaveOldWallpaper = settings.value("SaveOldWallpaper","").toBool();
-    _create_menu_item = settings.value("create_menu_item","").toBool();
     _delete_automatically = settings.value("delete_automatically","").toBool();
     _delete_older_than = settings.value("delete_older_than","").toInt();
     settings.endGroup();
@@ -145,7 +134,7 @@ void MainWindow::set_values()
     _Provider = settings.value("Provider","").toString();
     settings.endGroup();
 
-    _appVersion = "1.8";
+    _appVersion = "1.0";
     _write_AppVersion();
 
     if (_Autostart == true)
@@ -155,15 +144,6 @@ void MainWindow::set_values()
     else
     {
         no_autostart();
-    }
-
-    if (_create_menu_item == true)
-    {
-        set_menu_item();
-    }
-    else
-    {
-        no_menu_item();
     }
 }
 
@@ -222,22 +202,12 @@ void MainWindow::load_wallpaper()
 
 void MainWindow::no_autostart()
 {
-    autostart_and_menuitem.no_autostart();
+    Autostart.no_autostart();
 }
 
 void MainWindow::set_autostart()
 {
-    autostart_and_menuitem.set_autostart();
-}
-
-void MainWindow::no_menu_item()
-{
-    autostart_and_menuitem.no_menuitem();
-}
-
-void MainWindow::set_menu_item()
-{
-    autostart_and_menuitem.set_menuitem();
+    Autostart.set_autostart();
 }
 
 void MainWindow::init_descriptionImage()
@@ -251,62 +221,57 @@ void MainWindow::init_MainContextMenu()
 
     menu = new QMenu(this);
 
-    // If you NOT use Unity(Ubuntu); See QTBUG-26840: https://bugreports.qt.io/browse/QTBUG-26840
-    // Init Widgets to show title, thumbnail of the Wallpaper and
-    // description in the context menu
-    if(_IsUnity==false) { 
-        if(!(_wallpaperfile=="NULL"))
-        {
-            QWidget* _descWidget = new QWidget();
-            QVBoxLayout* dL = new QVBoxLayout();
-            QWidgetAction * _widgetaction = new QWidgetAction(menu);
-            QLabel * _imageLabel = new QLabel();
-            QLabel * _labelTitle = new QLabel();
-            QLabel * _labelBingLocation = new QLabel("Bing Location: "+_country);
-            QLabel * _labelDescription = new QLabel(_tooltip_message);
-            _imageLabel->setAlignment(Qt::AlignCenter);
-            _labelTitle->setAlignment(Qt::AlignCenter);
-            _labelBingLocation->setAlignment(Qt::AlignCenter);
-            _labelDescription->setAlignment(Qt::AlignCenter);
+    if(!(_wallpaperfile=="NULL"))
+    {
+        QWidget* _descWidget = new QWidget();
+        QVBoxLayout* dL = new QVBoxLayout();
+        QWidgetAction * _widgetaction = new QWidgetAction(menu);
+        QLabel * _imageLabel = new QLabel();
+        QLabel * _labelTitle = new QLabel();
+        QLabel * _labelBingLocation = new QLabel("Bing Location: "+_country);
+        QLabel * _labelDescription = new QLabel(_tooltip_message);
+        _imageLabel->setAlignment(Qt::AlignCenter);
+        _labelTitle->setAlignment(Qt::AlignCenter);
+        _labelBingLocation->setAlignment(Qt::AlignCenter);
+        _labelDescription->setAlignment(Qt::AlignCenter);
 
+        if(_Provider =="Bing") {
+            _labelTitle->setText("Bing Wallpaper of the Day");
+        }
+        if(_Provider =="WindowsSpotlight") {
+            _labelTitle->setText("Wallpaper of Windows Spotlight");
+            _labelBingLocation->hide();
+        }
+
+        _descImage = _loadImage.scaled(280,150, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+        _imageLabel->setPixmap(QPixmap::fromImage(_descImage));
+
+        _labelBingLocation->setWordWrap(true);
+        _labelBingLocation->setStyleSheet("font: 12pt");
+
+        _labelDescription->setWordWrap(true);
+        _labelDescription->setStyleSheet("font: 12pt; font-style: italic; text-align:center;");
+
+        _labelTitle->setStyleSheet("font: 12pt; font-weight: bold; text-align:center;");
+
+        if(wallpaper_from_Host==true){
+            _labelTitle->hide();
+            _labelDescription->hide();
             if(_Provider =="Bing") {
-                _labelTitle->setText("Bing Wallpaper of the Day");
-            }
-            if(_Provider =="WindowsSpotlight") {
-                _labelTitle->setText("Wallpaper of Windows Spotlight");
                 _labelBingLocation->hide();
             }
-
-            _descImage = _loadImage.scaled(280,150, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
-            _imageLabel->setPixmap(QPixmap::fromImage(_descImage));
-
-            _labelBingLocation->setWordWrap(true);
-            _labelBingLocation->setStyleSheet("font: 8pt");
-
-            _labelDescription->setWordWrap(true);
-            _labelDescription->setStyleSheet("font: 8pt; font-style: italic; text-align:center;");
-
-            _labelTitle->setStyleSheet("font: 8pt; font-weight: bold; text-align:center;");
-
-            if(wallpaper_from_Host==true){
-                _labelTitle->hide();
-                _labelDescription->hide();
-                if(_Provider =="Bing") {
-                    _labelBingLocation->hide();
-                }
-            }
-
-            dL->addWidget(_labelTitle);
-            dL->addWidget(_imageLabel);
-            dL->addWidget(_labelBingLocation);
-            dL->addWidget(_labelDescription);
-            _descWidget->setLayout(dL);
-            _descWidget->show();
-            _widgetaction->setDefaultWidget(_descWidget);
-
-            menu->addAction(_widgetaction);
-            menu->addSeparator();
         }
+
+        dL->addWidget(_labelTitle);
+        dL->addWidget(_imageLabel);
+        dL->addWidget(_labelBingLocation);
+        dL->addWidget(_labelDescription);
+        _descWidget->setLayout(dL);
+        _descWidget->show();
+        _widgetaction->setDefaultWidget(_descWidget);
+
+        menu->addAction(_widgetaction);
+        menu->addSeparator();
     }
 
     //Init provider specific context menu items
@@ -465,9 +430,6 @@ void MainWindow::init_MainContextMenu()
 void MainWindow::init_SystemTrayIcon()
 {
     mSystemTrayIcon->setIcon(QIcon(":/128.png"));
-    if(_IsUnity==true){
-        mSystemTrayIcon->setContextMenu(menu);
-    }
     mSystemTrayIcon->show();
     mSystemTrayIcon->setVisible(true);
 }
@@ -813,9 +775,6 @@ void MainWindow::updateContextMenu()
 {
     //init MainContextMenu and set new to refresh the description and the Wallpaper-thumbnail
     init_MainContextMenu();
-    if(_IsUnity==true){
-        mSystemTrayIcon->setContextMenu(menu);
-    }
 }
 
 void MainWindow::delete_backgroundimages()
