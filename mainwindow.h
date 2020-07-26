@@ -109,7 +109,6 @@ private:
     void _write_binglocation_settings();
     void _write_bing_photo_resolution_settings();
     void check_dir();
-    void downloadPhotoFromURLNEW();
     void _keeporremove_old_wallpaper();
     void _show_tooltip();
     void _setBingWallpaper();
