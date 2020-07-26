@@ -57,6 +57,7 @@ private slots:
     void _wspotRef_click();
     void _show_photobrowser_click();
     void _gotoBing_click();
+    void _gotoBing_bing_click();
     void slotActive(QSystemTrayIcon::ActivationReason r);
 
 private:

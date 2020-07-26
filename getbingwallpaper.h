@@ -15,6 +15,7 @@ public:
     QByteArray downloadedPhotoData() const;
     QString _copyright_bing_photo;
     QString _headline_bing_desc;
+    QString _copyright_link;
     QString _no_internet_connection;
     void get_bing_wallpaper();
     void bing_basefile_parse();

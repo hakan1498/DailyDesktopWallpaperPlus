@@ -1,6 +1,5 @@
 <RCC>
     <qresource prefix="/">
-        <file>pufferpic.jpg</file>
         <file>countries/us.png</file>
         <file>countries/nz.png</file>
         <file>countries/japan.png</file>
