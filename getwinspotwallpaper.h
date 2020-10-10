@@ -13,9 +13,6 @@ class GetWinSpotWallpaper
 {
 public:
     QByteArray downloadedPhotoData() const;
-    QString _wspot_photo_description;
-    QString _wspot_title_text;
-    QString _bing_searchlink;
 
     void get_wallpaper();
     void parse_json_wspot();
@@ -44,6 +41,9 @@ private:
     QString _bingresolution;
     QString _binglocation;
     QString _WallpaperDir;
+    QString _wspot_photo_description;
+    QString _wspot_title_text;
+    QString _bing_searchlink;
 };
 
 #endif // GETWINSPOTWALLPAPER_H

@@ -84,6 +84,9 @@ private:
     QString _country;
     QString _appVersion;
     QString _wallpaperfile;
+    QString _copyright_description_photo;
+    QString _copyright_link;
+    QString _headline;
 
     QImage _loadImage;
     QImage _descImage;
@@ -126,6 +129,7 @@ private:
     void detectFilename();
     void checkFiles();
     void delete_backgroundimages();
+    void load_bgp_specific_settings();
 };
 
 #endif // MAINWINDOW_H

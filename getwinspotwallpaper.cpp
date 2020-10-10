@@ -120,6 +120,7 @@ void GetWinSpotWallpaper::write_settings()
     _settings.setValue("current_photo_dl_url", _wspot_photo_url);
     _settings.setValue("current_description", _wspot_photo_description);
     _settings.setValue("current_title", _wspot_title_text);
+    _settings.setValue("copyright_link", _bing_searchlink);
     _settings.endGroup();
     _settings.sync();
 }

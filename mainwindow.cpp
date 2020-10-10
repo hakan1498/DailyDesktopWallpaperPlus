@@ -99,6 +99,7 @@ void MainWindow::set_values()
                 "current_photo_dl_url=\n"
                 "current_description=\n"
                 "current_title=\n"
+                "copyright_link=\n"
                 "create_menu_item=true\n"
                 "delete_automatically=true\n"
                 "delete_older_than=30\n"
@@ -134,6 +135,9 @@ void MainWindow::set_values()
     _create_menu_item = settings.value("create_menu_item","").toBool();
     _delete_automatically = settings.value("delete_automatically","").toBool();
     _delete_older_than = settings.value("delete_older_than","").toInt();
+    _copyright_description_photo = settings.value("current_description","").toString();
+    _headline = settings.value("current_title","").toString();
+    _copyright_link = settings.value("copyright_link","").toString();
     settings.endGroup();
 
     settings.beginGroup("SETWALLPAPER");
@@ -145,7 +149,7 @@ void MainWindow::set_values()
     _Provider = settings.value("Provider","").toString();
     settings.endGroup();
 
-    _appVersion = "2.0";
+    _appVersion = "2.1";
     _write_AppVersion();
 
     if (_Autostart == true)
@@ -245,9 +249,25 @@ void MainWindow::init_descriptionImage()
     _loadImage.load(_WallpaperDir+"/"+_wallpaperfile);
 }
 
+void MainWindow::load_bgp_specific_settings()
+{
+    // read background-photo specific settings from INI file
+
+    QString _iniFileDir = QDir::homePath()+"/.DailyDesktopWallpaperPlus";
+    QDir settings_dir(_iniFileDir);
+
+    QSettings bg_spec_settings(_iniFilePath, QSettings::IniFormat);
+    bg_spec_settings.beginGroup("SETTINGS");
+    _copyright_description_photo = bg_spec_settings.value("current_description","").toString();
+    _headline = bg_spec_settings.value("current_title","").toString();
+    _copyright_link = bg_spec_settings.value("copyright_link","").toString();
+    bg_spec_settings.endGroup();
+}
+
 void MainWindow::init_MainContextMenu()
 {
     init_descriptionImage();
+    load_bgp_specific_settings();
 
     menu = new QMenu(this);
 
@@ -263,18 +283,27 @@ void MainWindow::init_MainContextMenu()
             QWidgetAction * _widgetaction = new QWidgetAction(menu);
             QLabel * _imageLabel = new QLabel();
             QLabel * _labelTitle = new QLabel();
-            QLabel * _labelBingLocation = new QLabel("Location of Bing: "+_country);
-            QLabel * _labelDescription = new QLabel(_tooltip_message);
+            QLabel * _labelBingLocation = new QLabel("Bing Location: "+_country);
+            QLabel * _labelDescription = new QLabel(_copyright_description_photo);
             _imageLabel->setAlignment(Qt::AlignCenter);
             _labelTitle->setAlignment(Qt::AlignCenter);
             _labelBingLocation->setAlignment(Qt::AlignCenter);
             _labelDescription->setAlignment(Qt::AlignCenter);
 
             if(_Provider =="Bing") {
-                _labelTitle->setText(getbingwallpaper._headline_bing_desc);
+                if(!_headline.isEmpty()) {
+                    _labelTitle->setText(_headline);
+                } else {
+                    _labelTitle->setText("Bing's photo of the day");
+                }
             }
+
             if(_Provider =="WindowsSpotlight") {
-                _labelTitle->setText(getwinspotwallpaper._wspot_title_text);
+                if(!_headline.isEmpty()) {
+                    _labelTitle->setText(_headline);
+                } else {
+                    _labelTitle->setText("Photo of Windows Spotlight");
+                }
                 _labelBingLocation->hide();
             }
 
@@ -534,7 +563,7 @@ void MainWindow::_menu_bing_wall_option_click()
 
 void MainWindow::_gotoBing_bing_click()
 {
-    QDesktopServices::openUrl(QUrl(getbingwallpaper._copyright_link));
+    QDesktopServices::openUrl(_copyright_link);
 }
 
 void MainWindow::_menu_bingRefresh_click()
@@ -549,7 +578,7 @@ void MainWindow::_wspotRef_click()
 
 void MainWindow::_gotoBing_click()
 {
-    QDesktopServices::openUrl(QUrl(getwinspotwallpaper._bing_searchlink));
+    QDesktopServices::openUrl(_copyright_link);
 }
 
 void MainWindow::_menu_usa_click()
@@ -760,14 +789,16 @@ void MainWindow::_keeporremove_old_wallpaper()
 
 void MainWindow::set_tooltip_string()
 {
+    load_bgp_specific_settings();
+
     if(_Provider == "Bing")
     {
-        _tooltip_title = getbingwallpaper._headline_bing_desc;
-        _tooltip_message = getbingwallpaper._copyright_bing_photo;
+        _tooltip_title = _headline;
+        _tooltip_message = _copyright_description_photo;
     } else
     {
-        _tooltip_title = getwinspotwallpaper._wspot_title_text;
-        _tooltip_message = getwinspotwallpaper._wspot_photo_description;
+        _tooltip_title = _headline;
+        _tooltip_message = _copyright_description_photo;
     }
 }
 

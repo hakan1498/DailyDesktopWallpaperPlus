@@ -55,9 +55,11 @@ void About::on_pushButton_clicked()
 void About::on_pushButton_2_clicked()
 {
     QDesktopServices::openUrl(QUrl("https://paypal.me/PGC1991"));
+    this->hide();
 }
 
 void About::on_pushButton_3_clicked()
 {
     QDesktopServices::openUrl(QUrl("https://sourceforge.net/projects/dailydesktopwallpaperplus/"));
+    this->hide();
 }
