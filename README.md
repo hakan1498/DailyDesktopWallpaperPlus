@@ -65,7 +65,7 @@ DailyDesktopWallpaperPlus
 
 ![alt text1](https://a.fsdn.com/con/app/proj/dailydesktopwallpaperplus/screenshots/Ohne%20Titel.jpg/max/max/1)
 
-
+#### DailyDesktopWallpaperPlus for macOS (Github): https://github.com/pgc062020/DailyDesktopWallpaperPlus_macOS
 
 #### More Screenshots: https://sourceforge.net/projects/dailydesktopwallpaperplus/
 
