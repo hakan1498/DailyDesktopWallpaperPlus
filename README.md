@@ -58,6 +58,11 @@ run the Application:
 ``` 
 DailyDesktopWallpaperPlus
 ``` 
-#### Screenshots: https://sourceforge.net/projects/dailydesktopwallpaperplus/
+#### Screenshots:
+![alt text2](https://a.fsdn.com/con/app/proj/dailydesktopwallpaperplus/screenshots/image3791.png/max/max/1)
+
+![alt text1](https://a.fsdn.com/con/app/proj/dailydesktopwallpaperplus/screenshots/Ohne%20Titel.jpg/max/max/1)
+
+#### More Screenshots: https://sourceforge.net/projects/dailydesktopwallpaperplus/
 
 #### Video (Youtube): https://www.youtube.com/watch?v=4qvVzRfBsd8
