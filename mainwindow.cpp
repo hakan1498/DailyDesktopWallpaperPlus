@@ -149,7 +149,7 @@ void MainWindow::set_values()
     _Provider = settings.value("Provider","").toString();
     settings.endGroup();
 
-    _appVersion = "2.2";
+    _appVersion = "2.2.1";
     _write_AppVersion();
 
     if (_Autostart == true)
