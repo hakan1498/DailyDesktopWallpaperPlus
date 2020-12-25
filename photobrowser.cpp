@@ -16,6 +16,7 @@
 #include <QThreadPool>
 #include <QCloseEvent>
 #include <QFileInfoList>
+#include <QSettings>
 
 PhotoBrowser::PhotoBrowser(QWidget *parent) :
     QDialog(parent),
@@ -23,7 +24,8 @@ PhotoBrowser::PhotoBrowser(QWidget *parent) :
 {
     ui->setupUi(this);
 
-    _read_path();
+    _read_settings();
+    _setPictureRes();
 
     QThreadPool::globalInstance()->setMaxThreadCount(1);
 
@@ -37,7 +39,7 @@ PhotoBrowser::PhotoBrowser(QWidget *parent) :
     ui->listView->setSpacing(15);
     ui->listView->setWrapping(true);
     ui->listView->setUniformItemSizes(true);
-    ui->listView->setIconSize(QSize (160, 120));
+    ui->listView->setIconSize(QSize (_scaled_picture_width, _scaled_picture_height));
     ui->listView->setModel(fmodel);
     ui->listView->setViewMode(QListView::IconMode);
     ui->listView->setMovement(QListView::Static);
@@ -67,12 +69,35 @@ PhotoBrowser::~PhotoBrowser()
     delete ui;
 }
 
-void PhotoBrowser::_read_path()
+void PhotoBrowser::_setPictureRes() {
+    if(_resolution=="1024x768") {
+        _scaled_picture_width = (1024/100)*15;
+        _scaled_picture_height = (768/100)*15;
+    } else if(_resolution=="1280x720") {
+        _scaled_picture_width = (1280/100)*15;
+        _scaled_picture_height = (720/100)*15;
+    } else if(_resolution=="1366x768") {
+        _scaled_picture_width = (1366/100)*15;
+        _scaled_picture_height = (768/100)*15;
+    } else if(_resolution=="1920x1080") {
+        _scaled_picture_width = (1920/100)*9;
+        _scaled_picture_height = (1080/100)*9;
+    } else if(_resolution=="1920x1200") {
+        _scaled_picture_width = (1920/100)*9;
+        _scaled_picture_height = (1200/100)*9;
+    }
+}
+
+void PhotoBrowser::_read_settings()
 {
     QString _iniFilePath = QDir::homePath()+"/.DailyDesktopWallpaperPlus/settings.ini";
 
     // read settings from INI file
     QSettings settings(_iniFilePath, QSettings::IniFormat);
+
+    settings.beginGroup("BING-SETTINGS");
+    _resolution = settings.value("resolution","").toString();
+    settings.endGroup();
 
     settings.beginGroup("SETTINGS");
     _WallpaperDir = settings.value("WallpaperDir","").toString();
@@ -133,10 +158,10 @@ void PhotoBrowser::removeWallpaperFile()
     int minFile = 1;
     if (!(minFile > totalfiles))
     {
-        // if in the selected wallpaper directory are different photo files,
-        // that are not wallpaperfiles, then filter it
-        // the filename of the wallpaperfiles of DailyDesktopWallpaperPlus
-        // contains in the filename "background".
+        /* if in the selected wallpaper directory are different photo files,
+           that are not wallpaperfiles, then filter it
+           the filename of the wallpaperfiles of DailyDesktopWallpaperPlus
+           contains in the filename "background". */
 
         for (int i = 0; i < totalfiles; i++) {
             QString _picturefile = WallpaperList[0].baseName()+".jpg";
