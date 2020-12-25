@@ -49,8 +49,6 @@ private:
     int _scaled_picture_height;
 
     bool running;
-    bool _readpath;
-    bool _readresolution;
 
     void _init_ImageList();
     void _read_settings();
