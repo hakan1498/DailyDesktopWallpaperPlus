@@ -8,6 +8,7 @@ QT       += core gui
 QT       += network
 QT       += xml
 QT       += concurrent
+QT       += sql
 
 greaterThan(QT_MAJOR_VERSION, 4): QT += widgets
 
@@ -27,9 +28,9 @@ DEFINES += QT_DEPRECATED_WARNINGS
 
 
 SOURCES += main.cpp\
-    createfilename.cpp \
     itemdelegate.cpp \
         mainwindow.cpp \
+    manage_database.cpp \
     settingswindow.cpp \
     getbingwallpaper.cpp \
     getwinspotwallpaper.cpp \
@@ -39,8 +40,8 @@ SOURCES += main.cpp\
     setwallpaper.cpp
 
 HEADERS  += mainwindow.h \
-    createfilename.h \
     itemdelegate.h \
+    manage_database.h \
     settingswindow.h \
     getbingwallpaper.h \
     getwinspotwallpaper.h \

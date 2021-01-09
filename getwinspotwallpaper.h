@@ -22,7 +22,7 @@ public:
     void get_json_file();
 
 private:
-    QFile jsonFile;
+    QFile jsonFile; 
     QNetworkAccessManager dl_manager;
     QByteArray downloaded_photo_data;
     QString _reply;
@@ -30,10 +30,14 @@ private:
 
     bool download_photo;
 
+    int _picture_size_height;
+    int _picture_size_width;
+
     void fileDownloaded();
     void remove_jsonFile();
     void write_settings();
     void saveImage();
+    void add_record();
 
     QString _iniFilePath;
     QString _wspot_photo_url;
@@ -44,6 +48,7 @@ private:
     QString _wspot_photo_description;
     QString _wspot_title_text;
     QString _bing_searchlink;
+    QString filename;
 };
 
 #endif // GETWINSPOTWALLPAPER_H

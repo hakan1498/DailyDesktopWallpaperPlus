@@ -1,5 +1,5 @@
 #include "getwinspotwallpaper.h"
-#include "createfilename.h"
+#include "manage_database.h"
 
 #include <QUrl>
 #include <QObject>
@@ -14,11 +14,14 @@
 #include <QJsonValue>
 #include <QPixmap>
 #include <QSettings>
+#include <QDebug>
+#include <QThread>
 
 void GetWinSpotWallpaper::get_wallpaper()
 {
     parse_json_wspot();
     download_photo_option();
+    add_record();
 }
 
 void GetWinSpotWallpaper::parse_json_wspot()
@@ -118,12 +121,10 @@ void GetWinSpotWallpaper::write_settings()
 
     _settings.beginGroup("SETTINGS");
     _settings.setValue("current_photo_dl_url", _wspot_photo_url);
-    _settings.setValue("current_description", _wspot_photo_description);
-    _settings.setValue("current_title", _wspot_title_text);
-    _settings.setValue("copyright_link", _bing_searchlink);
     _settings.endGroup();
     _settings.sync();
 }
+
 
 void GetWinSpotWallpaper::download_photo_option()
 {
@@ -178,13 +179,30 @@ QByteArray GetWinSpotWallpaper::downloadedPhotoData() const {
 void GetWinSpotWallpaper::saveImage()
 {
     read_settings();
-
-    CreateFilename _createfilename;
-    _createfilename.createFilename();
-
-    QString filename = _WallpaperDir+"/"+_createfilename.filename_new2;
-
+    filename = QDateTime::currentDateTime().toString("yyyyMMddHHmmss")+"-background.jpg";
     QPixmap photo_wallpaper;
     photo_wallpaper.loadFromData(downloadedPhotoData());
-    photo_wallpaper.save(filename);
+    photo_wallpaper.save(_WallpaperDir+"/"+filename);
+    _picture_size_height = photo_wallpaper.size().height();
+    _picture_size_width = photo_wallpaper.size().width();
+}
+
+void GetWinSpotWallpaper::add_record()
+{
+    manage_database ManageDatabase;
+    ManageDatabase.init_database();
+    if(ManageDatabase._initDB_failed==false)
+    {
+        ManageDatabase._add_record_urlBase = _wspot_photo_url;
+        ManageDatabase._add_record_copyright_description = _wspot_photo_description;
+        ManageDatabase._add_record_copyright_link = _bing_searchlink;
+        ManageDatabase._add_record_headline = _wspot_title_text;
+        ManageDatabase._add_record_filename = filename;
+        ManageDatabase._size_height = _picture_size_height;
+        ManageDatabase._size_width = _picture_size_width;
+        ManageDatabase.add_record();
+    } else {
+        qDebug() << "Error while initializing Database.";
+    }
+    QThread::msleep(100);
 }

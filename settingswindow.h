@@ -17,6 +17,8 @@ public:
     explicit SettingsWindow(QWidget *parent = 0);
     ~SettingsWindow();
 
+    bool _set_reset;
+
 private slots:
     void on_pushButton_4_clicked();
     void on_pushButton_3_clicked();
@@ -26,6 +28,7 @@ private slots:
     void on_pushButton_2_clicked();
     void on_checkBox_3_clicked();
     void on_checkBox_4_clicked();
+    void on_pushButton_5_clicked();
 
 private:
     Ui::SettingsWindow *ui;
@@ -43,6 +46,9 @@ private:
     bool _delete_automatically;
 
     int _delete_older_than;
+    int _time_hours;
+    int _time_minutes;
+    int _time_seconds;
 
     void init_settings();
     void write_settings();

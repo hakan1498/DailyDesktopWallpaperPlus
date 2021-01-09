@@ -11,11 +11,10 @@
 
 void Autostart_and_MenuItem::set_autostartLocation()
 {
-    // read variable $XDG_CONFIG_HOME.
-    // If the variable is empty then set default directory $HOME/.config
-    //
-    // If the variable contains more than one directory (e.g. PATH1:PATH2...)
-    // then split by ":" and select the first directory as autostartDir.
+    /* read variable $XDG_CONFIG_HOME.
+     * If the variable is empty then set default directory $HOME/.config
+     * If the variable contains more than one directory (e.g. PATH1:PATH2...)
+     * then split by ":" and select the first directory as autostartDir. */
 
     QString _confDirVariable = qgetenv("XDG_CONFIG_HOME");
 

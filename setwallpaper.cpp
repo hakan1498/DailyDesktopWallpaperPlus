@@ -9,6 +9,7 @@
 #include <QTextStream>
 #include <QDir>
 #include <QTimer>
+#include <QThread>
 
 void setWallpaper::_read_settings()
 {
@@ -22,6 +23,7 @@ void setWallpaper::_read_settings()
     settings.endGroup();
 
     settings.beginGroup("SETWALLPAPER");
+    _AutoChange = settings.value("AutoChange","").toBool();
     _Parameter = settings.value("Parameter","").toInt();
     settings.endGroup();
 }
@@ -29,64 +31,63 @@ void setWallpaper::_read_settings()
 void setWallpaper::_set_wallpaper()
 {
     _read_settings();
-
-    QDir wallDir(_WallpaperDir);
-    QFileInfoList WallpaperList = wallDir.entryInfoList(QStringList() << "*.jpg", QDir::Files);
-    int totalfiles = WallpaperList.size();
-    int minFile = 1;
-
-    //check if a file is in the wallpaper directory to avoid a crash
-    if (!(minFile > totalfiles))
+    if(_AutoChange==true)
     {
-        _wallpaperfile = _WallpaperDir+"/"+WallpaperList[0].baseName()+".jpg";
-        //check if a file is a wallpaperfile of DailyDesktopWallpaperPlus
-        if(_wallpaperfile.contains("-background.jpg"))
+        QDir wallDir(_WallpaperDir);
+        QFileInfoList WallpaperList = wallDir.entryInfoList(QStringList() << "*.jpg", QDir::Files);
+        int totalfiles = WallpaperList.size();
+        int minFile = 1;
+
+        //check if a file is in the wallpaper directory to avoid a crash
+        if (!(minFile > totalfiles))
         {
-            QProcess setWallpaper;
+            _wallpaperfile = _wallpaperfilename;
 
-            if(_Parameter==0)
-                //Budgie
-                setWallpaper.execute("gsettings set org.gnome.desktop.background picture-uri  \"file://"+_wallpaperfile+"\"");
-            else if(_Parameter==1)
-                //Cinnamon
-                setWallpaper.execute("gsettings set org.cinnamon.desktop.background picture-uri  \"file://"+_wallpaperfile+"\"");
-            else if(_Parameter==2)
-                //DDE
-                setWallpaper.execute("gsettings set com.deepin.wrap.gnome.desktop.background picture-uri \"file://"+_wallpaperfile+"\"");
-            else if(_Parameter==3)
-                //GNOME
-                setWallpaper.execute("gsettings set org.gnome.desktop.background picture-uri \"file://"+_wallpaperfile+"\"");
-            else if(_Parameter==4)
-                //MATE
-                setWallpaper.execute("gsettings set org.mate.background picture-filename \""+_wallpaperfile+"\"");
-            else if(_Parameter==5)
-                //Unity (Ubuntu)
-                setWallpaper.execute("gsettings set org.gnome.desktop.background picture-uri  \"file://"+_wallpaperfile+"\"");
-            else if(_Parameter==6) {
-                //KDE Plasma 5.x
-                _create_bashfile();
-                setWallpaper.execute("/bin/bash "+_scriptfile);
-                _remove_bashfile();
-                }
-            else if(_Parameter==7)
-                //KDE3.x or TDE
-                setWallpaper.execute("dcop kdesktop KBackgroundIface setWallpaper \""+_wallpaperfile+"\" 8");
-            else if(_Parameter==8)
-                //LXDE
-                setWallpaper.execute("pcmanfm --set-wallpaper=\""+_wallpaperfile+"\"");
-            else if(_Parameter==9) {
-                // XFCE
-                // detect all monitors (_xfce4_detect_monitors()); set wallpaper for all monitors in a second part
-                _xfce4_detect_monitors();
-                for (int i = 0; i < _detected_monitors.size(); i++)
-                {
-                    QString _selected_monitor = _detected_monitors.at(i);
-                    setWallpaper.execute("xfconf-query --channel xfce4-desktop --property "+_selected_monitor+" --set \""+_wallpaperfile+"\"");
+            //check if a file is a wallpaperfile of DailyDesktopWallpaperPlus
+            if(_wallpaperfile.contains("-background.jpg"))
+            {
+                QProcess setWallpaper;
 
-                    //set delay for 100ms
-                    QEventLoop loop;
-                        QTimer::singleShot(100, &loop, SLOT(quit()));
-                    loop.exec();
+                if(_Parameter==0)
+                    //Budgie
+                    setWallpaper.execute("gsettings set org.gnome.desktop.background picture-uri  \"file://"+_wallpaperfile+"\"");
+                else if(_Parameter==1)
+                    //Cinnamon
+                    setWallpaper.execute("gsettings set org.cinnamon.desktop.background picture-uri  \"file://"+_wallpaperfile+"\"");
+                else if(_Parameter==2)
+                    //DDE
+                    setWallpaper.execute("gsettings set com.deepin.wrap.gnome.desktop.background picture-uri \"file://"+_wallpaperfile+"\"");
+                else if(_Parameter==3)
+                    //GNOME
+                    setWallpaper.execute("gsettings set org.gnome.desktop.background picture-uri \"file://"+_wallpaperfile+"\"");
+                else if(_Parameter==4)
+                    //MATE
+                    setWallpaper.execute("gsettings set org.mate.background picture-filename \""+_wallpaperfile+"\"");
+                else if(_Parameter==5)
+                    //Unity (Ubuntu)
+                    setWallpaper.execute("gsettings set org.gnome.desktop.background picture-uri  \"file://"+_wallpaperfile+"\"");
+                else if(_Parameter==6) {
+                    //KDE Plasma 5.x
+                    _create_bashfile();
+                    setWallpaper.execute("/bin/bash "+_scriptfile);
+                    _remove_bashfile();
+                    }
+                else if(_Parameter==7)
+                    //KDE3.x or TDE
+                    setWallpaper.execute("dcop kdesktop KBackgroundIface setWallpaper \""+_wallpaperfile+"\" 8");
+                else if(_Parameter==8)
+                    //LXDE
+                    setWallpaper.execute("pcmanfm --set-wallpaper=\""+_wallpaperfile+"\"");
+                else if(_Parameter==9) {
+                    // XFCE
+                    // detect all monitors (_xfce4_detect_monitors()); set wallpaper for all monitors in a second part
+                    _xfce4_detect_monitors();
+                    for (int i = 0; i < _detected_monitors.size(); i++)
+                    {
+                        QString _selected_monitor = _detected_monitors.at(i);
+                        setWallpaper.execute("xfconf-query --channel xfce4-desktop --property "+_selected_monitor+" --set \""+_wallpaperfile+"\"");
+                        QThread::msleep(100);
+                    }
                 }
             }
         }

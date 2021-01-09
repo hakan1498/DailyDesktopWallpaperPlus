@@ -1,10 +1,8 @@
 #include "mainwindow.h"
 #include "ui_mainwindow.h"
 #include "photobrowser.h"
+#include "manage_database.h"
 
-#include <iostream>
-#include <cstdio>
-#include <ctime>
 #include <QFile>
 #include <QDir>
 #include <QFileInfo>
@@ -24,6 +22,7 @@
 #include <QDesktopServices>
 #include <QtGlobal>
 #include <QDate>
+#include <QThread>
 
 MainWindow::MainWindow(QWidget *parent) :
     QMainWindow(parent),
@@ -32,9 +31,11 @@ MainWindow::MainWindow(QWidget *parent) :
     ui->setupUi(this);
     qApp->setAttribute(Qt::AA_DontShowIconsInMenus, false);
 
+    _photobrowser_specific_values=false;
+    _set_reset=false;
+
     QString _usedDesktop = qgetenv("XDG_SESSION_DESKTOP");
     _IsUnity=false;
-
     if(_usedDesktop=="ubuntu") {
         _IsUnity=true;
     }
@@ -43,19 +44,18 @@ MainWindow::MainWindow(QWidget *parent) :
     mSystemTrayIcon = new QSystemTrayIcon(this);
 
     set_values();
+    QThread::msleep(100);
     check_dir();
-    checkFiles();
-    detectFilename();
     load_wallpaper();
     init_MainContextMenu();
     init_SystemTrayIcon();
+    checkFiles();
 
     if(_SaveOldWallpaper==true) {
         if(_delete_automatically==true) {
-            delete_backgroundimages();
+            manage_wallpapers();
         }
     }
-
     connect(mSystemTrayIcon,SIGNAL(activated(QSystemTrayIcon::ActivationReason)),this,SLOT(slotActive(QSystemTrayIcon::ActivationReason)));
 }
 
@@ -97,16 +97,17 @@ void MainWindow::set_values()
                 "SaveOldWallpaper=true\n"
                 "Provider=Bing\n"
                 "current_photo_dl_url=\n"
-                "current_description=\n"
-                "current_title=\n"
-                "copyright_link=\n"
                 "create_menu_item=true\n"
                 "delete_automatically=true\n"
-                "delete_older_than=30\n"
+                "delete_older_than=15\n"
                 "\n"
                 "[SETWALLPAPER]\n"
                 "AutoChange=true\n"
                 "Parameter=0\n"
+                "Auto_timebased_change=true\n"
+                "time_hours=24\n"
+                "time_minutes=0\n"
+                "time_seconds=0\n"
                 "\n"
                 "[VERSION]\n"
                 "Version="+_appVersion+"\n";
@@ -135,21 +136,21 @@ void MainWindow::set_values()
     _create_menu_item = settings.value("create_menu_item","").toBool();
     _delete_automatically = settings.value("delete_automatically","").toBool();
     _delete_older_than = settings.value("delete_older_than","").toInt();
-    _copyright_description_photo = settings.value("current_description","").toString();
-    _headline = settings.value("current_title","").toString();
-    _copyright_link = settings.value("copyright_link","").toString();
     settings.endGroup();
 
     settings.beginGroup("SETWALLPAPER");
     _AutoChange = settings.value("AutoChange","").toBool();
     _Parameter = settings.value("Parameter","").toInt();
+    _time_hours = settings.value("time_hours","").toInt();
+    _time_minutes = settings.value("time_minutes","").toInt();
+    _time_seconds = settings.value("time_seconds","").toInt();
     settings.endGroup();
 
     settings.beginGroup("SETTINGS");
     _Provider = settings.value("Provider","").toString();
     settings.endGroup();
 
-    _appVersion = "2.3";
+    _appVersion = "3.0";
     _write_AppVersion();
 
     if (_Autostart == true)
@@ -169,48 +170,28 @@ void MainWindow::set_values()
     {
         no_menu_item();
     }
+
+    if (_AutoChange == true)
+    {
+        set_autoChange();
+    }
+    else
+    {
+        no_autoChange();
+    }
 }
 
 void MainWindow::check_dir()
 {
     QDir _wallDir(_WallpaperDir);
     QDir _oldwallDir(_OldWallpaperDir);
-
     if(!_wallDir.exists()) {
         _wallDir.mkpath(_WallpaperDir);
     }
-
     if(_SaveOldWallpaper == true) {
         if(!_oldwallDir.exists()) {
             _oldwallDir.mkpath(_OldWallpaperDir);
         }
-    }
-}
-
-void MainWindow::detectFilename()
-{
-    QDir wallDir(_WallpaperDir);
-    QFileInfoList WallpaperList = wallDir.entryInfoList(QStringList() << "*.jpg", QDir::Files);
-    int totalfiles = WallpaperList.size();
-    int minFile = 1;
-    if (!(minFile > totalfiles))
-    {
-        // if in the selected wallpaper directory are different photo files,
-        // that are not wallpaperfiles, then filter it
-        // the filename of the wallpaperfiles of DailyDesktopWallpaperPlus
-        // contains in the filename "background".
-
-        for (int i = 0; i < totalfiles; i++) {
-            QString _picturefile = WallpaperList[0].baseName()+".jpg";
-            if(_picturefile.contains("-background.jpg")){
-                _wallpaperfile = WallpaperList[0].baseName()+".jpg";
-            }
-        }
-    }
-    if (minFile > totalfiles)
-    {
-        // Set a content in the qstring to avoid a crash
-        _wallpaperfile = "NULL";
     }
 }
 
@@ -221,6 +202,28 @@ void MainWindow::load_wallpaper()
     }
     if(_Provider =="WindowsSpotlight") {
         _setWinSpotWallpaper();
+    }
+}
+
+void MainWindow::set_autoChange()
+{
+    _time_milliseconds = (_time_hours*3600000)+(_time_minutes*3600)+(_time_seconds*1000);
+    if (_AutoChange && _autoChangeTimer == NULL)
+    {
+        _autoChangeTimer = new QTimer(this);
+        connect(_autoChangeTimer, &QTimer::timeout, this, &MainWindow::load_wallpaper);
+        _autoChangeTimer->start(_time_milliseconds);
+    }
+}
+
+void MainWindow::no_autoChange()
+{
+    if (_autoChangeTimer != NULL)
+    {
+        _autoChangeTimer->stop();
+        disconnect(_autoChangeTimer, &QTimer::timeout, this, &MainWindow::load_wallpaper);
+        delete _autoChangeTimer;
+        _autoChangeTimer = NULL;
     }
 }
 
@@ -244,39 +247,44 @@ void MainWindow::set_menu_item()
     autostart_and_menuitem.set_menuitem();
 }
 
-void MainWindow::init_descriptionImage()
-{
-    _loadImage.load(_WallpaperDir+"/"+_wallpaperfile);
-}
-
 void MainWindow::load_bgp_specific_settings()
 {
-    // read background-photo specific settings from INI file
+    // read background-photo specific settings from Database
 
-    QString _iniFileDir = QDir::homePath()+"/.DailyDesktopWallpaperPlus";
-    QDir settings_dir(_iniFileDir);
-
-    QSettings bg_spec_settings(_iniFilePath, QSettings::IniFormat);
-    bg_spec_settings.beginGroup("SETTINGS");
-    _copyright_description_photo = bg_spec_settings.value("current_description","").toString();
-    _headline = bg_spec_settings.value("current_title","").toString();
-    _copyright_link = bg_spec_settings.value("copyright_link","").toString();
-    bg_spec_settings.endGroup();
+    manage_database ManageDatabase;
+    ManageDatabase.init_database();
+    if(ManageDatabase._initDB_failed==false)
+    {
+        if(_photobrowser_specific_values==false)
+        {
+            ManageDatabase.get_last_record();
+            _copyright_description_photo = ManageDatabase._last_rec_description_and_copyright;
+            _headline = ManageDatabase._last_rec_headline;
+            _setwall._wallpaperfilename = ManageDatabase._last_rec_filename;
+            _wallpaperfile = ManageDatabase._last_rec_filename;
+            _copyright_link = ManageDatabase._last_browser_url;
+        }
+    }
+    QThread::msleep(100);
+    if (_wallpaperfile.isEmpty())
+    {
+        // Set a content in the qstring to avoid a crash
+        _wallpaperfile = "NULL";
+    }
 }
 
 void MainWindow::init_MainContextMenu()
 {
-    init_descriptionImage();
     load_bgp_specific_settings();
 
     menu = new QMenu(this);
 
     /* If you NOT use Unity(Ubuntu); See QTBUG-26840: https://bugreports.qt.io/browse/QTBUG-26840
-       Init Widgets to show title, thumbnail of the Wallpaper and
-       description in the context menu */
+     * Init Widgets to show title, thumbnail of the Wallpaper and
+     * description in the context menu */
 
     if(_IsUnity==false) { 
-        if(!(_wallpaperfile=="NULL"))
+        if(!(_wallpaperfile=="NULL" or _wallpaperfile==""))
         {
             QWidget* _descWidget = new QWidget();
             QVBoxLayout* dL = new QVBoxLayout();
@@ -290,7 +298,7 @@ void MainWindow::init_MainContextMenu()
             _labelBingLocation->setAlignment(Qt::AlignCenter);
             _labelDescription->setAlignment(Qt::AlignCenter);
 
-            if(_Provider =="Bing") {
+            if(_Provider =="Bing" && _photobrowser_specific_values==false) {
                 if(!_headline.isEmpty()) {
                     _labelTitle->setText(_headline);
                 } else {
@@ -298,7 +306,7 @@ void MainWindow::init_MainContextMenu()
                 }
             }
 
-            if(_Provider =="WindowsSpotlight") {
+            if(_Provider =="WindowsSpotlight" && _photobrowser_specific_values==false) {
                 if(!_headline.isEmpty()) {
                     _labelTitle->setText(_headline);
                 } else {
@@ -306,6 +314,16 @@ void MainWindow::init_MainContextMenu()
                 }
                 _labelBingLocation->hide();
             }
+
+            if(_photobrowser_specific_values==true) {
+                _labelTitle->setText(_headline);
+                _labelBingLocation->hide();
+                _loadImage.load(_OldWallpaperDir+"/"+_wallpaperfile);
+            } else {
+                _loadImage.load(_WallpaperDir+"/"+_wallpaperfile);
+            }
+
+            QThread::msleep(300);
 
             _descImage = _loadImage.scaled(280,150, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
             _imageLabel->setPixmap(QPixmap::fromImage(_descImage));
@@ -317,14 +335,6 @@ void MainWindow::init_MainContextMenu()
             _labelDescription->setStyleSheet("font: 8pt; font-style: italic; text-align:center;");
 
             _labelTitle->setStyleSheet("font: 8pt; font-weight: bold; text-align:center;");
-
-            if(wallpaper_from_Host==true){
-                _labelTitle->hide();
-                _labelDescription->hide();
-                if(_Provider =="Bing") {
-                    _labelBingLocation->hide();
-                }
-            }
 
             dL->addWidget(_labelTitle);
             dL->addWidget(_imageLabel);
@@ -347,7 +357,7 @@ void MainWindow::init_MainContextMenu()
         QPixmap _display(":/icons/monitor.png");
 
         QPixmap _gotoBing(":icons/Info.png");
-        QAction * gotoBing_bing = menu->addAction(_gotoBing, trUtf8("Show description on Bing"));
+        QAction * gotoBing_bing = menu->addAction(_gotoBing, trUtf8("Learn more about this Picture"));
         QAction * bingRefresh = menu->addAction(refresh, trUtf8("Refresh Wallpaper"));
         menu->addSeparator();
         QMenu * bingLoc = menu->addMenu(_loc, trUtf8("Bing Location"));
@@ -392,6 +402,7 @@ void MainWindow::init_MainContextMenu()
         connect(_france_, SIGNAL(triggered()), this, SLOT(_menu_france_click()));
 
         // create submenus to select the resolution of the photo
+        QAction * _UHD_ = bingRes->addAction(trUtf8("higher than 1920x1200"));
         QAction * _1920x1200_ = bingRes->addAction(trUtf8("1920x1200"));
         QAction * _1920x1080_ = bingRes->addAction(trUtf8("1920x1080"));
         QAction * _1366x768_ = bingRes->addAction(trUtf8("1366x768"));
@@ -400,18 +411,21 @@ void MainWindow::init_MainContextMenu()
 
         QActionGroup* _bingphoto_resolution_group = new QActionGroup(this);
 
+        _UHD_->setCheckable(true);
         _1920x1200_->setCheckable(true);
         _1920x1080_->setCheckable(true);
         _1366x768_->setCheckable(true);
         _1280x720_->setCheckable(true);
         _1024x768_->setCheckable(true);
 
+        _UHD_->setActionGroup(_bingphoto_resolution_group);
         _1920x1200_->setActionGroup(_bingphoto_resolution_group);
         _1920x1080_->setActionGroup(_bingphoto_resolution_group);
         _1366x768_->setActionGroup(_bingphoto_resolution_group);
         _1280x720_->setActionGroup(_bingphoto_resolution_group);
         _1024x768_->setActionGroup(_bingphoto_resolution_group);
 
+        connect(_UHD_, SIGNAL(triggered()), this, SLOT(_menu_bingRes_UHD_click()));
         connect(_1920x1200_, SIGNAL(triggered()), this, SLOT(_menu_bingRes_1920x1200_click()));
         connect(_1920x1080_, SIGNAL(triggered()), this, SLOT(_menu_bingRes_1920x1080_click()));
         connect(_1366x768_, SIGNAL(triggered()), this, SLOT(_menu_bingRes_1366x768_click()));
@@ -419,7 +433,9 @@ void MainWindow::init_MainContextMenu()
         connect(_1024x768_, SIGNAL(triggered()), this, SLOT(_menu_bingRes_1024x768_click()));
 
         // set resolution-item
-        if(_resolution=="1920x1200") {
+        if(_resolution=="UHD") {
+            _UHD_->setChecked(true);
+        } else if(_resolution=="1920x1200") {
             _1920x1200_->setChecked(true);
         } else if(_resolution=="1920x1080") {
             _1920x1080_->setChecked(true);
@@ -507,17 +523,19 @@ void MainWindow::init_SystemTrayIcon()
 
 void MainWindow::_show_photobrowser_click()
 {
+    manage_wallpapers();
    PhotoBrowser _photobrowser;
    _photobrowser.setModal(true);
    _photobrowser.exec();
-   detectFilename();
    mSystemTrayIcon->setToolTip("");
-
    if (_photobrowser.wallchanged==true) {
-       if(wallpaper_from_Host==false){
-            wallpaper_from_Host = true;
-       }
-       init_descriptionImage();
+       _photobrowser_specific_values=true;
+       _copyright_description_photo = _photobrowser._pb_copyright_description_photo;
+       _headline = _photobrowser._pb_headline;
+       _copyright_link = _photobrowser._pb_copyright_link;
+       _wallpaperfile = _photobrowser._photobrowser_specific_wallpaperfilename;
+
+       _photobrowser.wallchanged=false;
        updateContextMenu();
    }
 }
@@ -530,6 +548,10 @@ void MainWindow::_menu_settings_click()
     _sett_win.exec();
     set_values();
     updateContextMenu();
+    if(_sett_win._set_reset==true)
+    {
+        _reset();
+    }
 }
 
 void MainWindow::_menu_about_click()
@@ -600,6 +622,7 @@ void MainWindow::_menu_japan_click()
 void MainWindow::_menu_china_click()
 {
     _selected_binglocation = "zh-CN";
+    _country="China";
     _write_binglocation_settings();
     _setBingWallpaper();
 }
@@ -658,6 +681,15 @@ void MainWindow::_menu_france_click()
     _country="France";
     _write_binglocation_settings();
     _setBingWallpaper();
+}
+
+void MainWindow::_menu_bingRes_UHD_click()
+{
+    _selected_bing_photo_resolution = "UHD";
+    _resolution="UHD";
+    _write_bing_photo_resolution_settings();
+    _setBingWallpaper();
+    updateContextMenu();
 }
 
 void MainWindow::_menu_bingRes_1920x1200_click()
@@ -749,42 +781,41 @@ void MainWindow::_write_AppVersion()
 void MainWindow::_check_internet_connection()
 {
     //check internet connection at first
-
     QString _check_url = "http://www.bing.com";
-
     QEventLoop loop;
     QObject::connect(&dl_manager,&QNetworkAccessManager::finished,&loop,&QEventLoop::quit);
     reply = dl_manager.get(QNetworkRequest(_check_url));
     loop.exec();
-
     if (reply->bytesAvailable())
     {
-        wallpaper_from_Host = false;
+        //wallpaper_from_Host = false;
         _keeporremove_old_wallpaper();
         if(_Provider =="Bing") {
             getbingwallpaper.get_bing_wallpaper();
-            set_tooltip_string();
+            // letzten Datensatz laden
         }
         if(_Provider =="WindowsSpotlight") {
             getwinspotwallpaper.get_wallpaper();
-            set_tooltip_string();
         }
-        detectFilename();
+        // detectFilename();
     }
     else
     {
-        wallpaper_from_Host = true;
-        _tooltip_title ="Error";
-        _tooltip_message = "Connection to the internet failed!";
+        qDebug() << "ERROR: No connection to the internet.";
         _show_tooltip();
     }
+    reply->close();
+    loop.exit();
+    load_bgp_specific_settings();
+    set_tooltip_string();
 }
 
 void MainWindow::_keeporremove_old_wallpaper()
 {
+    load_bgp_specific_settings();
     if (_SaveOldWallpaper == true)
     {
-        if(!(_wallpaperfile == "NULL")) {
+        if(!(_wallpaperfile == "NULL" or _wallpaperfile == "")) {
             QFile::copy(_WallpaperDir+"/"+_wallpaperfile, _OldWallpaperDir+"/"+_wallpaperfile);
             QFile old_bgfile(_WallpaperDir+"/"+_wallpaperfile);
             old_bgfile.remove(_WallpaperDir+"/"+_wallpaperfile);
@@ -799,8 +830,6 @@ void MainWindow::_keeporremove_old_wallpaper()
 
 void MainWindow::set_tooltip_string()
 {
-    load_bgp_specific_settings();
-
     if(_Provider == "Bing")
     {
         _tooltip_title = _headline;
@@ -821,18 +850,20 @@ void MainWindow::_show_tooltip()
 
 void MainWindow::_setBingWallpaper()
 {
+    _photobrowser_specific_values=false;
     _check_internet_connection();
     _show_tooltip();
-    init_descriptionImage();
+    _setwall._wallpaperfilename = _WallpaperDir+"/"+_wallpaperfile;
     _setwall._set_wallpaper();
     updateContextMenu();
 }
 
 void MainWindow::_setWinSpotWallpaper()
 {
+    _photobrowser_specific_values=false;
     _check_internet_connection();
     _show_tooltip();
-    init_descriptionImage();
+    _setwall._wallpaperfilename = _WallpaperDir+"/"+_wallpaperfile;
     _setwall._set_wallpaper();
     updateContextMenu();
 }
@@ -842,19 +873,14 @@ void MainWindow::checkFiles()
     // check if more than one picturefile in the directory
     // If more than one file in the directory, then remove it (e.g. after a crash to remove corrupt files)
     QDir wallDir(_WallpaperDir);
-    QFileInfoList WallpaperList = wallDir.entryInfoList(QStringList() << "*.jpg", QDir::Files);
-    int totalfiles = WallpaperList.size();
-    int minFile = 2;
-    if (minFile <= totalfiles)
+    QStringList _wallList = QDir(_WallpaperDir).entryList();
+    QString _actual_picturefile = _wallpaperfile;
+    for(int i = 0; i < _wallList.size(); i++)
     {
-        for (int a = 0; a < totalfiles; a++)
+        if(!(_wallList.at(i).contains(_actual_picturefile)))
         {
-            QString _picturefile = _WallpaperDir+"/"+WallpaperList[a].baseName()+".jpg";
-            if(_picturefile.contains("-background.jpg"))
-            {
-                QFile file(_picturefile);
-                file.remove();
-            }
+            QFile _file(_WallpaperDir+"/"+_wallList.at(i));
+            _file.remove();
         }
     }
 }
@@ -868,21 +894,92 @@ void MainWindow::updateContextMenu()
     }
 }
 
-void MainWindow::delete_backgroundimages()
+void MainWindow::manage_wallpapers()
 {
-    const QDate today_date = QDate::currentDate();
+    manage_database ManageDatabase;
+    ManageDatabase.init_database();
+    if(ManageDatabase._initDB_failed==false)
+    {
+        ManageDatabase.read_date();
+        for(int i = 0; i < ManageDatabase.datelist.size(); i++)
+        {
+            QDate current_date = QDate::currentDate();
+            QDate selected_date = QDate::fromString(ManageDatabase.datelist.at(i), "yyyyMMdd");
+            if(selected_date.daysTo(current_date)>_delete_older_than) {
+                ManageDatabase.selected_datelist.append(ManageDatabase.datelist.at(i));
+            }
+        }
+        ManageDatabase.create_filenamelist();
+        for(int j = 0; j < ManageDatabase.filenamelist.size(); j++)
+        {
+            QString file = _OldWallpaperDir+"/"+ManageDatabase.filenamelist.at(j);
+            QFile old_wallp(file);
+            old_wallp.remove();
+            qDebug() << "Picture " << file << " deleted.";
+            file.clear();
+        }
+        ManageDatabase.delete_old_records();
+    }
 
-    QString filter_fname("%1%1%1%1-%1%1-%1%1-%1%1-%1%1-%1%1-background.jpg");
-    filter_fname = filter_fname.arg("[0123456789]");
+    /* now, delete old Wallpaperfiles from the directory
+     * _OldWallpaperDir, if the filename of it is not in
+     * the database (e.g. after a crash) */
 
-    Q_FOREACH (auto imageInfo, QDir(_OldWallpaperDir).entryInfoList(QStringList(filter_fname), QDir::Files)) {
-        if (imageInfo.fileName().contains("keep")) continue;
-        if (imageInfo.created().date().daysTo(today_date) > _delete_older_than) {
-            QString filepath = imageInfo.absoluteFilePath();
-            QDir deletefile;
-            deletefile.setPath(filepath);
-            deletefile.remove(filepath);
-            qDebug() << "Picture " + filepath + " is deleted.";
+    QStringList DirectoryContent_allWallpapers;
+
+    if(_SaveOldWallpaper==true)
+    {
+         DirectoryContent_allWallpapers.append(QDir(_OldWallpaperDir).entryList() + QDir(_WallpaperDir).entryList());
+    } else
+    {
+         DirectoryContent_allWallpapers.append(QDir(_WallpaperDir).entryList());
+    }
+
+    ManageDatabase.create_full_filenamelist();
+
+    for(int k = 0; k < DirectoryContent_allWallpapers.size(); k++)
+    {
+        if(!(ManageDatabase.full_filenamelist.contains(DirectoryContent_allWallpapers.at(k))))
+        {
+            QString file_to_delete = _OldWallpaperDir+"/"+DirectoryContent_allWallpapers.at(k);
+            QFile file(file_to_delete);
+            file.remove();
+            qDebug() << "File " << DirectoryContent_allWallpapers.at(k).toUtf8() << " does not exist in the Database --> File removed.";
         }
     }
+
+    /* delete "death" records in the database, if the filename is not
+     * foundable in _OldWallpaperDir */
+
+    ManageDatabase.existing_files = DirectoryContent_allWallpapers;
+    ManageDatabase.delete_unused_records();
+
+    QThread::msleep(100);
 }
+
+void MainWindow::_reset()
+{
+    QString _scriptfile = QDir::homePath()+"/reset_ddwp.sh";
+
+    QFile reset_script(_scriptfile);
+    if(!reset_script.exists(_scriptfile))
+    {
+        QString _script = "#!/bin/bash\n"
+                "homeDir=\""+QDir::homePath()+"/.DailyDesktopWallpaperPlus\"\n"
+                "\n"
+                "rm $homeDir\'ddwp_database.sqlite\'\n"
+                "rm $homeDir\'/mainicon.png\'\n"
+                "rm $homeDir\'/settings.ini\'\n"
+                "rm -r $homeDir";
+        if (reset_script.open(QIODevice::Append))
+        {
+            QTextStream stream(&reset_script);
+            stream <<_script<<endl;
+        }
+    }
+    QProcess::execute("/bin/bash "+_scriptfile);
+    reset_script.remove();
+    QThread::msleep(300);
+    QApplication::quit();
+}
+
