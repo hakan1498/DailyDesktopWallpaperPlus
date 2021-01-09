@@ -524,11 +524,12 @@ void MainWindow::init_SystemTrayIcon()
 void MainWindow::_show_photobrowser_click()
 {
     manage_wallpapers();
-   PhotoBrowser _photobrowser;
-   _photobrowser.setModal(true);
-   _photobrowser.exec();
-   mSystemTrayIcon->setToolTip("");
-   if (_photobrowser.wallchanged==true) {
+    QThread::msleep(100);
+    PhotoBrowser _photobrowser;
+    _photobrowser.setModal(true);
+    _photobrowser.exec();
+    mSystemTrayIcon->setToolTip("");
+    if (_photobrowser.wallchanged==true) {
        _photobrowser_specific_values=true;
        _copyright_description_photo = _photobrowser._pb_copyright_description_photo;
        _headline = _photobrowser._pb_headline;
@@ -537,7 +538,7 @@ void MainWindow::_show_photobrowser_click()
 
        _photobrowser.wallchanged=false;
        updateContextMenu();
-   }
+    }
 }
 
 void MainWindow::_menu_settings_click()
@@ -569,7 +570,6 @@ void MainWindow::_menu_winspot_wall_option_click()
     menu->clear();
     updateContextMenu();
     _setWinSpotWallpaper();
-    // set item
     _bing_wall_option->setChecked(false);
 }
 
@@ -788,16 +788,13 @@ void MainWindow::_check_internet_connection()
     loop.exec();
     if (reply->bytesAvailable())
     {
-        //wallpaper_from_Host = false;
         _keeporremove_old_wallpaper();
         if(_Provider =="Bing") {
             getbingwallpaper.get_bing_wallpaper();
-            // letzten Datensatz laden
         }
         if(_Provider =="WindowsSpotlight") {
             getwinspotwallpaper.get_wallpaper();
         }
-        // detectFilename();
     }
     else
     {
