@@ -67,6 +67,4 @@ DailyDesktopWallpaperPlus
 
 #### More Screenshots: https://sourceforge.net/projects/dailydesktopwallpaperplus/
 
-#### Video (Youtube): https://www.youtube.com/watch?v=4qvVzRfBsd8
-
 #### DailyDesktopWallpaperPlus for macOS (Github): https://github.com/pgc062020/DailyDesktopWallpaperPlus_macOS
