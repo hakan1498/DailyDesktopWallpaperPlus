@@ -8,10 +8,11 @@
 
 #### Features:
 
- * Download Bing's daily photo from 10 Countries and set automatically as your wallpaper.
+ * Allow to download the daily photo from Bing
+ * Allow to download the daily photo from Windows Spotlight
  * Download and set the daily photos of Windows Spotlight automatically as your wallpaper.
  * Load and set existing Wallpapers.
- * Automatic change of the wallpaper which are downloaded works on numerous Desktops:
+ * The Application supports numerous Desktops:
     * Trinity Desktop Environment
     * K Desktop Environment v3.x
     * KDE Plasma 5
@@ -67,4 +68,4 @@ DailyDesktopWallpaperPlus
 
 #### More Screenshots: https://sourceforge.net/projects/dailydesktopwallpaperplus/
 
-#### DailyDesktopWallpaperPlus for macOS (Github): https://github.com/pgc062020/DailyDesktopWallpaperPlus_macOS
+#### DailyDesktopWallpaperPlus is available for macOS. GitHub: https://github.com/pgc062020/DailyDesktopWallpaperPlus_macOS
