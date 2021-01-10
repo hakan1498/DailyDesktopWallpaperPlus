@@ -451,7 +451,7 @@ void MainWindow::init_MainContextMenu()
     if (_Provider == "WindowsSpotlight")
     {
         QPixmap _gotoBing(":icons/Info.png");
-        QAction * gotoBing = menu->addAction(_gotoBing, trUtf8("Show description on Bing"));
+        QAction * gotoBing = menu->addAction(_gotoBing, trUtf8("Learn more about this Picture"));
 
         QPixmap refresh(":icons/Download.png");
         QAction * wspotRef = menu->addAction(refresh, trUtf8("Refresh Wallpaper"));
