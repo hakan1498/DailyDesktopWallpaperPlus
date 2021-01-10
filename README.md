@@ -8,8 +8,8 @@
 
 #### Features:
 
- * Allow to download the daily photo from Bing
- * Allow to download the daily photo from Windows Spotlight
+ * Allows to use the daily photo from Bing as wallpaper
+ * Allows to use the daily photo from Windows-Spotlight as wallpaper
  * Download and set the daily photos of Windows Spotlight automatically as your wallpaper.
  * Load and set existing Wallpapers.
  * The Application supports numerous Desktops:
