@@ -1,7 +1,6 @@
 #ifndef PHOTOBROWSER_H
 #define PHOTOBROWSER_H
 
-//#include "mainwindow.h"
 #include "setwallpaper.h"
 
 #include <QDialog>
