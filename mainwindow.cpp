@@ -207,7 +207,7 @@ void MainWindow::load_wallpaper()
 
 void MainWindow::set_autoChange()
 {
-    _time_milliseconds = (_time_hours*3600000)+(_time_minutes*3600)+(_time_seconds*1000);
+    _time_milliseconds = (_time_hours*3600000)+(_time_minutes*60000)+(_time_seconds*1000);
     if (_AutoChange && _autoChangeTimer == NULL)
     {
         _autoChangeTimer = new QTimer(this);
