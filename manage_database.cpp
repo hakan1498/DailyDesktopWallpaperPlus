@@ -289,19 +289,16 @@ void manage_database::get_specific_values()
         if(ddwp_query.exec() && ddwp_query.next())
         {
             _photobrowser_specific_browser_url = ddwp_query.value(0).toString();
-
         }
         ddwp_query.prepare("SELECT size_width FROM ddwp_history WHERE filename = \'"+_photobrowser_specific_filename+"\'");
         if(ddwp_query.exec() && ddwp_query.next())
         {
             _out_width = ddwp_query.value(0).toInt();
-
         }
         ddwp_query.prepare("SELECT size_height FROM ddwp_history WHERE filename = \'"+_photobrowser_specific_filename+"\'");
         if(ddwp_query.exec() && ddwp_query.next())
         {
             _out_height = ddwp_query.value(0).toInt();
-
         }
         ddwp_query.clear();
         close_database();
