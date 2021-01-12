@@ -32,14 +32,6 @@ public:
     explicit MainWindow(QWidget *parent = 0);
     ~MainWindow();
 
-    void set_values();
-    void check_dir();
-    void load_wallpaper();
-    void init_MainContextMenu();
-    void init_SystemTrayIcon();
-    void checkFiles();
-    void manage_wallpapers();
-
 signals:
     void downloaded();
 
@@ -143,6 +135,13 @@ private:
     void updateContextMenu();
     void delete_backgroundimages();
     void load_bgp_specific_settings();
+    void set_values();
+    void check_dir();
+    void load_wallpaper();
+    void init_MainContextMenu();
+    void init_SystemTrayIcon();
+    void checkFiles();
+    void manage_wallpapers();
 };
 
 #endif // MAINWINDOW_H
