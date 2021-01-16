@@ -143,7 +143,7 @@ void GetWinSpotWallpaper::download_file()
        _download_url = _wspot_photo_url;
     } else
     {
-       _download_url = "https://arc.msn.com/v3/Delivery/Cache?pid=279978&fmt=json&lc=en,en-US&ctry=US";
+       _download_url = "https://arc.msn.com/v3/Delivery/Placement?pid=209567&fmt=json&rafb=0&ua=WindowsShellClient%2F0&cdm=1&disphorzres=9999&dispvertres=9999&lo=80217&pl=en-US&lc=en-US&ctry=us";
     }
 
     QEventLoop loop;
