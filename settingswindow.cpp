@@ -112,17 +112,12 @@ void SettingsWindow::init_settings()
         ui->checkBox_3->setChecked(true);
         ui->label_3->setEnabled(true);
         ui->comboBox->setEnabled(true);
-        ui->spinBox_2->setEnabled(true);
-        ui->spinBox_3->setEnabled(true);
-        ui->spinBox_4->setEnabled(true);
-        ui->spinBox_2->setValue(_time_hours);
-        ui->spinBox_3->setValue(_time_minutes);
-        ui->spinBox_4->setValue(_time_seconds);
+        QTime time(_time_hours, _time_minutes);
+        ui->timeEdit->setTime(time);
     } else
     {
-        ui->spinBox_2->setDisabled(true);
-        ui->spinBox_3->setDisabled(true);
-        ui->spinBox_4->setDisabled(true);
+
+        ui->timeEdit->setDisabled(true);
     }
 
     ui->comboBox->addItem("Budgie");
@@ -151,9 +146,8 @@ void SettingsWindow::write_settings()
 
     _delete_automatically = ui->checkBox_4->checkState();
     _delete_older_than = ui->spinBox->value();
-    _time_hours = ui->spinBox_2->value();
-    _time_minutes = ui->spinBox_3->value();
-    _time_seconds = ui->spinBox_4->value();
+    _time_hours = ui->timeEdit->time().hour();
+    _time_minutes = ui->timeEdit->time().minute();
 
     if(ui->radioButton->isChecked() == true)
     {
@@ -192,7 +186,6 @@ void SettingsWindow::write_settings()
     settings.setValue("Parameter", combobox_index);
     settings.setValue("time_hours", _time_hours);
     settings.setValue("time_minutes", _time_minutes);
-    settings.setValue("time_seconds", _time_seconds);
     settings.endGroup();
     settings.sync();
 }
@@ -283,16 +276,14 @@ void SettingsWindow::on_checkBox_3_clicked()
 {
     if(ui->checkBox_3->isChecked() == true) {
         ui->label_3->setEnabled(true);
+        ui->label_5->setEnabled(true);
         ui->comboBox->setEnabled(true);
-        ui->spinBox_2->setEnabled(true);
-        ui->spinBox_3->setEnabled(true);
-        ui->spinBox_4->setEnabled(true);
+        ui->timeEdit->setEnabled(true);
     } else {
         ui->label_3->setDisabled(true);
+        ui->label_5->setDisabled(true);
         ui->comboBox->setDisabled(true);
-        ui->spinBox_2->setDisabled(true);
-        ui->spinBox_3->setDisabled(true);
-        ui->spinBox_4->setDisabled(true);
+        ui->timeEdit->setDisabled(true);
     }
 }
 

@@ -105,9 +105,8 @@ void MainWindow::set_values()
                 "AutoChange=true\n"
                 "Parameter=0\n"
                 "Auto_timebased_change=true\n"
-                "time_hours=24\n"
+                "time_hours=18\n"
                 "time_minutes=0\n"
-                "time_seconds=0\n"
                 "\n"
                 "[VERSION]\n"
                 "Version="+_appVersion+"\n";
@@ -115,7 +114,7 @@ void MainWindow::set_values()
         if (iniFile.open(QIODevice::Append))
         {
             QTextStream stream(&iniFile);
-            stream <<iniDefaultData<<endl;
+            stream << iniDefaultData << Qt::endl;
         }
     }
 
@@ -143,14 +142,13 @@ void MainWindow::set_values()
     _Parameter = settings.value("Parameter","").toInt();
     _time_hours = settings.value("time_hours","").toInt();
     _time_minutes = settings.value("time_minutes","").toInt();
-    _time_seconds = settings.value("time_seconds","").toInt();
     settings.endGroup();
 
     settings.beginGroup("SETTINGS");
     _Provider = settings.value("Provider","").toString();
     settings.endGroup();
 
-    _appVersion = "3.2";
+    _appVersion = "3.3";
     _write_AppVersion();
 
     if (_Autostart == true)
@@ -197,6 +195,12 @@ void MainWindow::check_dir()
 
 void MainWindow::load_wallpaper()
 {
+    // If we got here from a timer, make sure to reset the timer for the next scheduled time...
+    if (_Autostart && _autoChangeTimer->isActive())
+    {
+        no_autoChange();
+        set_autoChange();
+    }
     if(_Provider =="Bing") {
         _setBingWallpaper();
     }
@@ -207,12 +211,41 @@ void MainWindow::load_wallpaper()
 
 void MainWindow::set_autoChange()
 {
-    _time_milliseconds = (_time_hours*3600000)+(_time_minutes*60000)+(_time_seconds*1000);
     if (_AutoChange && _autoChangeTimer == NULL)
     {
+        QTime scheduledTime(_time_hours, _time_minutes);
+
+        // Default of midnight if time is invalid for some reason...
+        if (!scheduledTime.isValid())
+        {
+            scheduledTime.setHMS(23,59,59);
+        }
+
+        int milliSecondsToGo = QTime::currentTime().msecsTo(scheduledTime);
+
+        // If time is in the past, schedule it for tomorrow...
+        if (milliSecondsToGo < 0)
+        {
+            // 0,0 is the start of the day whereas 23,59 + 1 min is tonight at midnight...
+            int msUntilMidnight = QTime::currentTime().msecsTo(QTime(23,59)) + 60000;
+            milliSecondsToGo = msUntilMidnight + (QTime(0,0).msecsTo(scheduledTime));
+        }
+
+        // Some padding for good measure to avoid firing more than once at the scheduled time
+        milliSecondsToGo += 3000;
+
         _autoChangeTimer = new QTimer(this);
         connect(_autoChangeTimer, &QTimer::timeout, this, &MainWindow::load_wallpaper);
-        _autoChangeTimer->start(_time_milliseconds);
+        _autoChangeTimer->start(milliSecondsToGo);
+
+        // for debugging
+        QString debugPath = QDir::homePath()+"/.DailyDesktopWallpaperPlus/debug.txt";
+        QFile debugFile(debugPath);
+        if (debugFile.open(QFile::Append))
+        {
+            QTextStream stream(&debugFile);
+            stream << "(" << QDateTime::currentDateTime().toString() << ") Remaining time: " << _autoChangeTimer->remainingTime() << " ms" << Qt::endl;
+        }
     }
 }
 
@@ -971,7 +1004,7 @@ void MainWindow::_reset()
         if (reset_script.open(QIODevice::Append))
         {
             QTextStream stream(&reset_script);
-            stream <<_script<<endl;
+            stream << _script << Qt::endl;
         }
     }
     QProcess::execute("/bin/bash "+_scriptfile);

@@ -104,8 +104,6 @@ private:
     int _delete_older_than;
     int _time_hours;
     int _time_minutes;
-    int _time_seconds;
-    int _time_milliseconds;
 
     bool _Autostart;
     bool _SaveOldWallpaper;
