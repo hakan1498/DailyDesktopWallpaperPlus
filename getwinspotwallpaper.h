@@ -42,13 +42,13 @@ private:
     QString _iniFilePath;
     QString _wspot_photo_url;
     QString urlBase;
-    QString _bingresolution;
-    QString _binglocation;
     QString _WallpaperDir;
     QString _wspot_photo_description;
     QString _wspot_title_text;
     QString _bing_searchlink;
     QString filename;
+    QString _thumbfiledir;
+    QString _thumb_filename;
 };
 
 #endif // GETWINSPOTWALLPAPER_H

@@ -53,7 +53,7 @@ void manage_database::init_table()
         QSqlQuery ddwp_query(ddwp_db);
         ddwp_query.exec("create table ddwp_history (id int primary key, "
                    "date varchar(30), description_and_copyright varchar(900), title varchar(500),"
-                   "filename varchar(150), browser_url varchar(500), size_width int, size_height int)");
+                   "filename varchar(150), browser_url varchar(500), size_width int, size_height int, thumb_filename varchar(150))");
         qDebug() << "New ddwp_history table created.";
     } else
     {
@@ -67,8 +67,8 @@ void manage_database::add_record()
     if(_openDB_error==false)
     {
         QSqlQuery ddwp_query(ddwp_db);
-        ddwp_query.prepare("INSERT INTO ddwp_history (id, date, description_and_copyright, title, filename, browser_url, size_width ,size_height) "
-                                    "VALUES (:id, :date, :description_and_copyright, :title, :filename, :browser_url, :size_width, :size_height)");
+        ddwp_query.prepare("INSERT INTO ddwp_history (id, date, description_and_copyright, title, filename, browser_url, size_width, size_height, thumb_filename) "
+                                    "VALUES (:id, :date, :description_and_copyright, :title, :filename, :browser_url, :size_width, :size_height, :thumb_filename)");
         ddwp_query.bindValue(":id", QDateTime::currentDateTime().toString("yyyyMMddHHmmss"));
         ddwp_query.bindValue(":date", QDate::currentDate().toString("yyyyMMdd"));
         ddwp_query.bindValue(":description_and_copyright", _add_record_copyright_description);
@@ -77,6 +77,7 @@ void manage_database::add_record()
         ddwp_query.bindValue(":browser_url", _add_record_copyright_link);
         ddwp_query.bindValue(":size_width", _size_width);
         ddwp_query.bindValue(":size_height", _size_height);
+        ddwp_query.bindValue(":thumb_filename", _thumb_filename);
         if(!ddwp_query.exec())
           qDebug() << ddwp_query.lastError();
         else
@@ -122,12 +123,26 @@ void manage_database::create_filenamelist()
                    filenamelist.append(ddwp_query.value(0).toString().toUtf8());
                }
             }
+            ddwp_query.prepare("SELECT thumb_filename FROM ddwp_history WHERE date=\'"+selected_datelist.at(i).toUtf8()+"\'");
+            if(ddwp_query.exec() && ddwp_query.next())
+            {
+               if(!_oldthumbfiles.contains(ddwp_query.value(0).toString().toUtf8()))
+               {
+                   _oldthumbfiles.append(ddwp_query.value(0).toString().toUtf8());
+               }
+            }
         }
         //Check if more entries with the same date and add it.
         while(ddwp_query.next()){
             if(!filenamelist.contains(ddwp_query.value(0).toString().toUtf8()))
             {
                 filenamelist.append(ddwp_query.value(0).toString().toUtf8());
+            }
+        }
+        while(ddwp_query.next()){
+            if(!_oldthumbfiles.contains(ddwp_query.value(0).toString().toUtf8()))
+            {
+                _oldthumbfiles.append(ddwp_query.value(0).toString().toUtf8());
             }
         }
         ddwp_query.clear();
@@ -229,6 +244,45 @@ void manage_database::create_full_filenamelist()
     }
 }
 
+void manage_database::create_full_thumbfilelist()
+{
+    open_database();
+    if(_openDB_error==false)
+    {
+        QSqlQuery ddwp_query(ddwp_db);
+        ddwp_query.prepare("SELECT thumb_filename FROM ddwp_history");
+        ddwp_query.exec();
+        while(ddwp_query.next())
+        {
+            if(!_full_thumbfilelist.contains(ddwp_query.value(0).toString().toUtf8()))
+            {
+                if(!(ddwp_query.value(0).toString().isEmpty()))
+                {
+                    _full_thumbfilelist.append(ddwp_query.value(0).toString().toUtf8());
+                }
+            }
+        }
+        ddwp_query.clear();
+        close_database();
+    }
+}
+
+void manage_database::get_wallpaperfilename()
+{
+    open_database();
+    if(_openDB_error==false)
+    {
+        QSqlQuery ddwp_query(ddwp_db);
+        ddwp_query.prepare("SELECT filename FROM ddwp_history WHERE thumb_filename = \'"+_thumb_filename+"\'");
+        if(ddwp_query.exec() && ddwp_query.next())
+        {
+            _wallpaperfilename = ddwp_query.value(0).toString();
+        }
+        ddwp_query.clear();
+        close_database();
+    }
+}
+
 void manage_database::delete_unused_records()
 {
     /* check if "death" records in the database, if the filename is not
@@ -275,30 +329,35 @@ void manage_database::get_specific_values()
     if(_openDB_error==false)
     {
         QSqlQuery ddwp_query(ddwp_db);
-        ddwp_query.prepare("SELECT description_and_copyright FROM ddwp_history WHERE filename = \'"+_photobrowser_specific_filename+"\'");
+        ddwp_query.prepare("SELECT description_and_copyright FROM ddwp_history WHERE thumb_filename = \'"+_thumb_filename+"\'");
         if(ddwp_query.exec() && ddwp_query.next())
         {
             _photobrowser_specific_desc = ddwp_query.value(0).toString();
         }
-        ddwp_query.prepare("SELECT title FROM ddwp_history WHERE filename = \'"+_photobrowser_specific_filename+"\'");
+        ddwp_query.prepare("SELECT title FROM ddwp_history WHERE thumb_filename = \'"+_thumb_filename+"\'");
         if(ddwp_query.exec() && ddwp_query.next())
         {
             _photobrowser_specific_headline = ddwp_query.value(0).toString();
         }
-        ddwp_query.prepare("SELECT browser_url FROM ddwp_history WHERE filename = \'"+_photobrowser_specific_filename+"\'");
+        ddwp_query.prepare("SELECT browser_url FROM ddwp_history WHERE thumb_filename = \'"+_thumb_filename+"\'");
         if(ddwp_query.exec() && ddwp_query.next())
         {
             _photobrowser_specific_browser_url = ddwp_query.value(0).toString();
         }
-        ddwp_query.prepare("SELECT size_width FROM ddwp_history WHERE filename = \'"+_photobrowser_specific_filename+"\'");
+        ddwp_query.prepare("SELECT size_width FROM ddwp_history WHERE thumb_filename = \'"+_thumb_filename+"\'");
         if(ddwp_query.exec() && ddwp_query.next())
         {
             _out_width = ddwp_query.value(0).toInt();
         }
-        ddwp_query.prepare("SELECT size_height FROM ddwp_history WHERE filename = \'"+_photobrowser_specific_filename+"\'");
+        ddwp_query.prepare("SELECT size_height FROM ddwp_history WHERE thumb_filename = \'"+_thumb_filename+"\'");
         if(ddwp_query.exec() && ddwp_query.next())
         {
             _out_height = ddwp_query.value(0).toInt();
+        }
+        ddwp_query.prepare("SELECT filename FROM ddwp_history WHERE thumb_filename = \'"+_thumb_filename+"\'");
+        if(ddwp_query.exec() && ddwp_query.next())
+        {
+            _wallpaperfilename = ddwp_query.value(0).toString();
         }
         ddwp_query.clear();
         close_database();

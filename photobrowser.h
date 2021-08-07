@@ -36,8 +36,6 @@ signals:
     void UpdateItem(int, QImage);
 
 private slots:
-    void List(QFileInfoList filesList, QSize size);
-    void setThumbs(int index, QImage img);
     void on_pushButton_clicked();
     void setWallpaperFile();
     void on_listView_clicked(const QModelIndex &index);
@@ -46,9 +44,6 @@ private slots:
 private:
     Ui::PhotoBrowser *ui;
     setWallpaper _setwall;
-    QFileSystemModel * fsmodel;
-    QStandardItemModel *fmodel;
-    QFuture<void> thread;
     QVBoxLayout *_layout_details;
     QLabel *_label_Details;
     QLabel *_label_headline;
@@ -69,10 +64,13 @@ private:
     QString _wallpaperfile;
     QString _resolution;
     QString filename_new;
-
+    QString _thumbfiledir;
+    QString _thumbfilename;
 
     QStringList _filenamelist;
     QStringList _filenamelist_with_fullpath;
+    QStringList _thumbfilelist;
+    QStringList _idlist;
 
     int _scaled_picture_width;
     int _scaled_picture_height;

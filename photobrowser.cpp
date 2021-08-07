@@ -31,30 +31,34 @@ PhotoBrowser::PhotoBrowser(QWidget *parent) :
     _read_settings();
     _setPictureRes();
 
-    QThreadPool::globalInstance()->setMaxThreadCount(1);
-
-    fsmodel = new QFileSystemModel(this);
-    fsmodel->setRootPath(_OldWallpaperDir);
-
-    fmodel = new QStandardItemModel(this);
-
+    //Init image list
     ui->listView->setResizeMode(QListView::Adjust);
     ui->listView->setFlow(QListView::LeftToRight);
     ui->listView->setSpacing(15);
     ui->listView->setWrapping(true);
     ui->listView->setUniformItemSizes(true);
     ui->listView->setIconSize(QSize (_scaled_picture_width, _scaled_picture_height));
-    ui->listView->setModel(fmodel);
     ui->listView->setViewMode(QListView::IconMode);
     ui->listView->setMovement(QListView::Static);
     ui->listView->setItemDelegate(new ItemDelegate(this));
 
-    connect(this, SIGNAL(UpdateItem(int,QImage)), SLOT(setThumbs(int,QImage)));
+    int _real_size = _thumbfilelist.size()-1;
+    QStandardItemModel *model = new QStandardItemModel(_real_size, 1, this);
+    manage_database ManageDatabase;
+    ManageDatabase.init_database();
+    for(int i=0;i<_real_size; i++){
+        _thumbfilename = _thumbfilelist.at(i).toUtf8();
+        QPixmap thumb;
+        thumb.load(_thumbfiledir+"/"+_thumbfilename);
+        thumb.scaled(_scaled_picture_width, _scaled_picture_height, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
+        QIcon icon = thumb;
+        QStandardItem *item = new QStandardItem(icon, _thumbfilelist.at(i).toUtf8());
+        model->setItem(i, item);
+    }
+    ui->listView->setModel(model);
+    // ------ End of init
 
-    running = false;
     wallchanged = false;
-
-    _init_ImageList();
 
     _label_Details = new QLabel(this);
     _label_headline = new QLabel(this);
@@ -152,54 +156,8 @@ void PhotoBrowser::_read_settings()
     settings.beginGroup("SETTINGS");
     _WallpaperDir = settings.value("WallpaperDir","").toString();
     _OldWallpaperDir = settings.value("OldWallpaperDir","").toString();
+    _thumbfiledir = settings.value("ThumbFileDir","").toString();
     settings.endGroup();
-}
-
-void PhotoBrowser::_init_ImageList()
-{
-    QFileInfoList WallpaperList;
-    int WallpaperCount = _filenamelist.size()-1;
-    for (int i = 0; i < _filenamelist.size(); i++)
-    {
-        if(!WallpaperList.contains(_OldWallpaperDir+"/"+_filenamelist.at(i).toUtf8()))
-        {
-            WallpaperList.append(_OldWallpaperDir+"/"+_filenamelist.at(i).toUtf8());
-        }
-    }
-    fmodel->clear();
-    running = false;
-    thread.waitForFinished();
-    QDir imageDir(_OldWallpaperDir);
-    QPixmap placeholder = QPixmap(ui->listView->iconSize());
-    placeholder.fill(Qt::gray);
-    for (int i = 0; i < WallpaperCount; i++)
-        fmodel->setItem(i, new QStandardItem(QIcon(placeholder), WallpaperList[i].baseName()));
-    running = true;
-    thread = QtConcurrent::run(this, &PhotoBrowser::List, WallpaperList, ui->listView->iconSize());
-}
-
-
-void PhotoBrowser::List(QFileInfoList WallpaperList, QSize size)
-{
-    int WallpaperCount = WallpaperList.size();
-
-    for (int i = 0; running && i < WallpaperCount; i++)
-    {
-        QImage originalImage(WallpaperList[i].filePath());
-        if (!originalImage.isNull())
-        {
-            QImage scaledImage = originalImage.scaled(size);
-            if (!running) return;
-            emit UpdateItem(i, scaledImage);
-        }
-    }
-}
-
-void PhotoBrowser::setThumbs(int index, QImage img)
-{
-    QIcon icon = QIcon(QPixmap::fromImage(img));
-    QStandardItem *item = fmodel->item(index);
-    fmodel->setItem(index, new QStandardItem(icon, item->text()));
 }
 
 void PhotoBrowser::on_pushButton_clicked()
@@ -243,11 +201,12 @@ void PhotoBrowser::removeWallpaperFile()
 void PhotoBrowser::setWallpaperFile()
 {
     QModelIndex index = ui->listView->currentIndex();
-    QString _selected_wallpaperfile = index.data(Qt::DisplayRole).toString()+".jpg";
-    qDebug() << "Load picture: " << index.data(Qt::DisplayRole).toString()+".jpg";
-    _setwall._wallpaperfilename = _OldWallpaperDir+"/"+index.data(Qt::DisplayRole).toString()+".jpg";
+    manage_database ManageDatabase;
+    ManageDatabase._thumb_filename = index.data(Qt::DisplayRole).toString();
+    ManageDatabase.get_wallpaperfilename();
+    _setwall._wallpaperfilename = _OldWallpaperDir+"/"+ManageDatabase._wallpaperfilename;
     _setwall._set_wallpaper();
-    _photobrowser_specific_wallpaperfilename = _selected_wallpaperfile;
+    _photobrowser_specific_wallpaperfilename = ManageDatabase._wallpaperfilename;
 }
 
 void PhotoBrowser::_get_values()
@@ -258,18 +217,19 @@ void PhotoBrowser::_get_values()
     {
         if(_get_specific_values==false)
         {
-            ManageDatabase.create_full_filenamelist();
-            _filenamelist = ManageDatabase.full_filenamelist;
+            ManageDatabase.create_full_thumbfilelist();
+            _thumbfilelist = ManageDatabase._full_thumbfilelist;
         } else
         {
             QModelIndex index = ui->listView->currentIndex();
-            ManageDatabase._photobrowser_specific_filename = index.data(Qt::DisplayRole).toString()+".jpg";
+            ManageDatabase._thumb_filename = index.data(Qt::DisplayRole).toString();
             ManageDatabase.get_specific_values();
             _pb_copyright_description_photo = ManageDatabase._photobrowser_specific_desc;
             _pb_headline = ManageDatabase._photobrowser_specific_headline;
             _pb_copyright_link = ManageDatabase._photobrowser_specific_browser_url;
             _size_width = ManageDatabase._out_width;
             _size_height = ManageDatabase._out_height;
+            _wallpaperfile = ManageDatabase._wallpaperfilename;
             _get_specific_values=false;
         }
     }
@@ -283,14 +243,11 @@ void PhotoBrowser::_get_values()
 
 void PhotoBrowser::on_listView_clicked(const QModelIndex &index)
 {
-  _display_details();
+    _display_details();
 }
 
 void PhotoBrowser::_display_details()
 {
-    QModelIndex index2 = ui->listView->currentIndex();
-    QString _selected_wallpaperfile = _OldWallpaperDir+"/"+index2.data(Qt::DisplayRole).toString()+".jpg";
-
     _label_Details->setText("Details");
     _label_Details->setStyleSheet("font: 14pt; font-weight: bold;");
 
@@ -325,7 +282,7 @@ void PhotoBrowser::_display_details()
 
         QImage _loadPrevImage;
         QImage _displayImage;
-        _loadPrevImage.load(_selected_wallpaperfile);
+        _loadPrevImage.load(_OldWallpaperDir+"/"+_wallpaperfile);
         _displayImage = _loadPrevImage.scaled(240,150, Qt::IgnoreAspectRatio, Qt::SmoothTransformation);
         _previewImageLabel->setPixmap(QPixmap::fromImage(_displayImage));
 

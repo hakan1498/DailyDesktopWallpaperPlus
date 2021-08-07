@@ -17,12 +17,17 @@ public:
     void get_last_record();
     void delete_unused_records();
     void get_specific_values();
+    void get_wallpaperfilename();
+    void create_full_thumbfilelist();
 
     QStringList datelist;
     QStringList selected_datelist;
     QStringList filenamelist;
     QStringList full_filenamelist;
+    QStringList _full_thumbfilelist;
     QStringList existing_files;
+    QStringList _full_idlist;
+    QStringList _oldthumbfiles;
 
     QString _add_record_urlBase;
     QString _add_record_copyright_description;
@@ -34,10 +39,11 @@ public:
     QString _last_rec_headline;
     QString _last_rec_filename;
     QString _last_browser_url;
-    QString _photobrowser_specific_filename;
     QString _photobrowser_specific_desc;
     QString _photobrowser_specific_headline;
     QString _photobrowser_specific_browser_url;
+    QString _thumb_filename;
+    QString _wallpaperfilename;
 
     bool _initDB_failed;
     bool _request_id;

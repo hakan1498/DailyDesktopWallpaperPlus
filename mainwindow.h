@@ -93,6 +93,7 @@ private:
     QString _copyright_description_photo;
     QString _copyright_link;
     QString _headline;
+    QString _thumbfiledir;
 
     QImage _loadImage;
     QImage _descImage;

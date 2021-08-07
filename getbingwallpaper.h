@@ -50,6 +50,8 @@ private:
     QString _copyright_link;
     QString _bing_reply;
     QString filename;
+    QString _thumbfiledir;
+    QString _thumb_filename;
 };
 
 #endif // GETBINGWALLPAPER_H

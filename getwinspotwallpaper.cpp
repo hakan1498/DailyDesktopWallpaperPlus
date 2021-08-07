@@ -102,6 +102,7 @@ void GetWinSpotWallpaper::read_settings()
 
     _settings.beginGroup("SETTINGS");
     _WallpaperDir = _settings.value("WallpaperDir","").toString();
+    _thumbfiledir = _settings.value("ThumbFileDir","").toString();
     _settings.endGroup();
 
     _iniFilePath.clear();
@@ -180,11 +181,28 @@ void GetWinSpotWallpaper::saveImage()
 {
     read_settings();
     filename = QDateTime::currentDateTime().toString("yyyyMMddHHmmss")+"-background.jpg";
+
     QPixmap photo_wallpaper;
     photo_wallpaper.loadFromData(downloadedPhotoData());
     photo_wallpaper.save(_WallpaperDir+"/"+filename);
     _picture_size_height = photo_wallpaper.size().height();
     _picture_size_width = photo_wallpaper.size().width();
+
+    // Create a thumbnail picture of the wallpaper for photobrowser;
+    int _thumb_size_height = (photo_wallpaper.size().height()/100)*9;
+    int _thumb_size_width =(photo_wallpaper.size().width()/100)*9;
+
+    _thumb_filename = QDateTime::currentDateTime().toString("yyyyMMddHHmmss")+"-thumb.jpg";
+
+    QPixmap _thumb = photo_wallpaper.scaled(QSize(_thumb_size_width, _thumb_size_height),  Qt::KeepAspectRatio, Qt::SmoothTransformation);
+
+    //Check if Thumbfile-Directory exist; Create it, if not exist.
+    QDir _thumbfile_dir(_thumbfiledir);
+    if(!_thumbfile_dir.exists()) {
+        _thumbfile_dir.mkpath(_thumbfiledir);
+    }
+
+    _thumb.save(_thumbfiledir+"/"+_thumb_filename);
 }
 
 void GetWinSpotWallpaper::add_record()
@@ -200,6 +218,7 @@ void GetWinSpotWallpaper::add_record()
         ManageDatabase._add_record_filename = filename;
         ManageDatabase._size_height = _picture_size_height;
         ManageDatabase._size_width = _picture_size_width;
+        ManageDatabase._thumb_filename = _thumb_filename;
         ManageDatabase.add_record();
     } else {
         qDebug() << "Error while initializing Database.";

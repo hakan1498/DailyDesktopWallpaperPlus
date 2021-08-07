@@ -93,6 +93,7 @@ void MainWindow::set_values()
                 "[SETTINGS]\n"
                 "WallpaperDir="+QDir::homePath()+"/.DailyDesktopWallpaperPlus/background_wallpaper\n"
                 "OldWallpaperDir="+QDir::homePath()+"/.DailyDesktopWallpaperPlus/old_Wallpapers\n"
+                "ThumbFileDir="+QDir::homePath()+"/.DailyDesktopWallpaperPlus/thumb_pictures\n"
                 "Autostart=true\n"
                 "SaveOldWallpaper=true\n"
                 "Provider=Bing\n"
@@ -131,6 +132,7 @@ void MainWindow::set_values()
     _Autostart = settings.value("Autostart","").toBool();
     _WallpaperDir = settings.value("WallpaperDir","").toString();
     _OldWallpaperDir = settings.value("OldWallpaperDir","").toString();
+    _thumbfiledir = settings.value("ThumbFileDir","").toString();
     _SaveOldWallpaper = settings.value("SaveOldWallpaper","").toBool();
     _create_menu_item = settings.value("create_menu_item","").toBool();
     _delete_automatically = settings.value("delete_automatically","").toBool();
@@ -148,7 +150,7 @@ void MainWindow::set_values()
     _Provider = settings.value("Provider","").toString();
     settings.endGroup();
 
-    _appVersion = "3.3";
+    _appVersion = "3.4";
     _write_AppVersion();
 
     if (_Autostart == true)
@@ -237,15 +239,6 @@ void MainWindow::set_autoChange()
         _autoChangeTimer = new QTimer(this);
         connect(_autoChangeTimer, &QTimer::timeout, this, &MainWindow::load_wallpaper);
         _autoChangeTimer->start(milliSecondsToGo);
-
-        // for debugging
-        QString debugPath = QDir::homePath()+"/.DailyDesktopWallpaperPlus/debug.txt";
-        QFile debugFile(debugPath);
-        if (debugFile.open(QFile::Append))
-        {
-            QTextStream stream(&debugFile);
-            stream << "(" << QDateTime::currentDateTime().toString() << ") Remaining time: " << _autoChangeTimer->remainingTime() << " ms" << Qt::endl;
-        }
     }
 }
 
@@ -390,11 +383,11 @@ void MainWindow::init_MainContextMenu()
         QPixmap _display(":/icons/monitor.png");
 
         QPixmap _gotoBing(":icons/Info.png");
-        QAction * gotoBing_bing = menu->addAction(_gotoBing, trUtf8("Learn more about this Picture"));
-        QAction * bingRefresh = menu->addAction(refresh, trUtf8("Refresh Wallpaper"));
+        QAction * gotoBing_bing = menu->addAction(_gotoBing, "Learn more about this Picture");
+        QAction * bingRefresh = menu->addAction(refresh, "Refresh Wallpaper");
         menu->addSeparator();
-        QMenu * bingLoc = menu->addMenu(_loc, trUtf8("Bing Location"));
-        QMenu * bingRes = menu->addMenu(_display, trUtf8("Resolution of the Wallpaper"));
+        QMenu * bingLoc = menu->addMenu(_loc, "Bing Location");
+        QMenu * bingRes = menu->addMenu(_display, "Resolution of the Wallpaper");
         menu->addSeparator();
 
         connect(gotoBing_bing, SIGNAL(triggered()), this, SLOT(_gotoBing_bing_click()));
@@ -412,16 +405,16 @@ void MainWindow::init_MainContextMenu()
         QPixmap brazil(":countries/brazil.png");
         QPixmap france(":countries/france.png");
 
-        QAction * _usa_ = bingLoc->addAction(usa, trUtf8("USA"));
-        QAction * _japan_ = bingLoc->addAction(japan, trUtf8("Japan"));
-        QAction * _china_ = bingLoc->addAction(china, trUtf8("China"));
-        QAction * _australia_ = bingLoc->addAction(australia, trUtf8("Australia"));
-        QAction * _gb_ = bingLoc->addAction(gb, trUtf8("Great Britain"));
-        QAction * _germany_ = bingLoc->addAction(germany, trUtf8("Germany"));
-        QAction * _canada_ = bingLoc->addAction(canada, trUtf8("Canada"));
-        QAction * _nz_ = bingLoc->addAction(nz, trUtf8("New Zealand"));
-        QAction * _brazil_ = bingLoc->addAction(brazil, trUtf8("Brazil"));
-        QAction * _france_ = bingLoc->addAction(france, trUtf8("France"));
+        QAction * _usa_ = bingLoc->addAction(usa, "USA");
+        QAction * _japan_ = bingLoc->addAction(japan, "Japan");
+        QAction * _china_ = bingLoc->addAction(china, "China");
+        QAction * _australia_ = bingLoc->addAction(australia, "Australia");
+        QAction * _gb_ = bingLoc->addAction(gb, "Great Britain");
+        QAction * _germany_ = bingLoc->addAction(germany, "Germany");
+        QAction * _canada_ = bingLoc->addAction(canada, "Canada");
+        QAction * _nz_ = bingLoc->addAction(nz, "New Zealand");
+        QAction * _brazil_ = bingLoc->addAction(brazil, "Brazil");
+        QAction * _france_ = bingLoc->addAction(france, "France");
 
         connect(_usa_, SIGNAL(triggered()), this, SLOT(_menu_usa_click()));
         connect(_japan_, SIGNAL(triggered()), this, SLOT(_menu_japan_click()));
@@ -435,12 +428,12 @@ void MainWindow::init_MainContextMenu()
         connect(_france_, SIGNAL(triggered()), this, SLOT(_menu_france_click()));
 
         // create submenus to select the resolution of the photo
-        QAction * _UHD_ = bingRes->addAction(trUtf8("higher than 1920x1200"));
-        QAction * _1920x1200_ = bingRes->addAction(trUtf8("1920x1200"));
-        QAction * _1920x1080_ = bingRes->addAction(trUtf8("1920x1080"));
-        QAction * _1366x768_ = bingRes->addAction(trUtf8("1366x768"));
-        QAction * _1280x720_ = bingRes->addAction(trUtf8("1280x720"));
-        QAction * _1024x768_ = bingRes->addAction(trUtf8("1024x768"));
+        QAction * _UHD_ = bingRes->addAction("higher than 1920x1200");
+        QAction * _1920x1200_ = bingRes->addAction("1920x1200");
+        QAction * _1920x1080_ = bingRes->addAction("1920x1080");
+        QAction * _1366x768_ = bingRes->addAction("1366x768");
+        QAction * _1280x720_ = bingRes->addAction("1280x720");
+        QAction * _1024x768_ = bingRes->addAction("1024x768");
 
         QActionGroup* _bingphoto_resolution_group = new QActionGroup(this);
 
@@ -484,10 +477,10 @@ void MainWindow::init_MainContextMenu()
     if (_Provider == "WindowsSpotlight")
     {
         QPixmap _gotoBing(":icons/Info.png");
-        QAction * gotoBing = menu->addAction(_gotoBing, trUtf8("Learn more about this Picture"));
+        QAction * gotoBing = menu->addAction(_gotoBing, "Learn more about this Picture");
 
         QPixmap refresh(":icons/Download.png");
-        QAction * wspotRef = menu->addAction(refresh, trUtf8("Refresh Wallpaper"));
+        QAction * wspotRef = menu->addAction(refresh, "Refresh Wallpaper");
 
         menu->addSeparator();
 
@@ -501,13 +494,13 @@ void MainWindow::init_MainContextMenu()
     QPixmap _about(":/icons/About.png");
     QPixmap _exit(":/icons/Exit.png");
 
-    QMenu * providers = menu->addMenu(_providers, trUtf8("Providers"));
-    QAction * ShowPhotoBrowser = menu->addAction(_loadexistwallpaper, trUtf8("Load existing Wallpaper"));
+    QMenu * providers = menu->addMenu(_providers, "Providers");
+    QAction * ShowPhotoBrowser = menu->addAction(_loadexistwallpaper, "Load existing Wallpaper");
     menu->addSeparator();
-    QAction * settings = menu->addAction(_wrench, trUtf8("Settings"));
-    QAction * about = menu->addAction(_about, trUtf8("About"));
+    QAction * settings = menu->addAction(_wrench, "Settings");
+    QAction * about = menu->addAction(_about, "About");
     menu->addSeparator();
-    QAction * exitApp = menu->addAction(_exit, trUtf8("Exit"));
+    QAction * exitApp = menu->addAction(_exit, "Exit");
 
     connect(ShowPhotoBrowser, SIGNAL(triggered()), this, SLOT(_show_photobrowser_click()));
     connect(settings, SIGNAL(triggered()), this, SLOT(_menu_settings_click()));
@@ -516,8 +509,8 @@ void MainWindow::init_MainContextMenu()
 
     // Create submenus of providers
     // Is private
-    _winspot_wall_option = providers->addAction(trUtf8("Photo of Windows Spotlight"));
-    _bing_wall_option = providers->addAction(trUtf8("Bing's picture of the day"));
+    _winspot_wall_option = providers->addAction("Photo of Windows Spotlight");
+    _bing_wall_option = providers->addAction("Bing's picture of the day");
 
     QActionGroup* _providers_group = new QActionGroup(this);
 
@@ -942,20 +935,27 @@ void MainWindow::manage_wallpapers()
         ManageDatabase.create_filenamelist();
         for(int j = 0; j < ManageDatabase.filenamelist.size(); j++)
         {
-            QString file = _OldWallpaperDir+"/"+ManageDatabase.filenamelist.at(j);
-            QFile old_wallp(file);
+            QString oldwallfile = _OldWallpaperDir+"/"+ManageDatabase.filenamelist.at(j);
+            QFile old_wallp(oldwallfile);
             old_wallp.remove();
-            qDebug() << "Picture " << file << " deleted.";
-            file.clear();
+            qDebug() << "Picture " << oldwallfile << " deleted.";
+            oldwallfile.clear();
+
+            QString oldthumbfile = _thumbfiledir+"/"+ManageDatabase.filenamelist.at(j);
+            QFile old_thumbf(oldthumbfile);
+            old_wallp.remove();
+            qDebug() << "Thumbnail-Picture " << oldthumbfile << " deleted.";
+            oldthumbfile.clear();
         }
         ManageDatabase.delete_old_records();
     }
 
-    /* now, delete old Wallpaperfiles from the directory
-     * _OldWallpaperDir, if the filename of it is not in
-     * the database (e.g. after a crash) */
+    /* now, delete old Wallpaperfiles and Thumbnail-Pictures from
+     * the directory _OldWallpaperDir, if the filename of it is not
+     * in the database (e.g. after a crash) */
 
     QStringList DirectoryContent_allWallpapers;
+
 
     if(_SaveOldWallpaper==true)
     {
@@ -971,10 +971,33 @@ void MainWindow::manage_wallpapers()
     {
         if(!(ManageDatabase.full_filenamelist.contains(DirectoryContent_allWallpapers.at(k))))
         {
-            QString file_to_delete = _OldWallpaperDir+"/"+DirectoryContent_allWallpapers.at(k);
-            QFile file(file_to_delete);
-            file.remove();
-            qDebug() << "File " << DirectoryContent_allWallpapers.at(k).toUtf8() << " does not exist in the Database --> File removed.";
+            if(!(DirectoryContent_allWallpapers.at(k).toUtf8()==".") && !(DirectoryContent_allWallpapers.at(k).toUtf8()==".."))
+            {
+                QString file_to_delete = _OldWallpaperDir+"/"+DirectoryContent_allWallpapers.at(k);
+                QFile file(file_to_delete);
+                file.remove();
+                qDebug() << "Picture " << DirectoryContent_allWallpapers.at(k).toUtf8() << " does not exist in the Database --> File removed.";
+            }
+        }
+    }
+
+    // Check if unused thumbnail-pictures are there and delete it.
+
+    QStringList DirectoryContent_ThumbnailPictures;
+    DirectoryContent_ThumbnailPictures.append(QDir(_thumbfiledir).entryList());
+    ManageDatabase.create_full_thumbfilelist();
+    for(int l=0; l < DirectoryContent_ThumbnailPictures.size(); l++)
+    {
+        if(!(ManageDatabase._full_thumbfilelist.contains(DirectoryContent_ThumbnailPictures.at(l))))
+        {
+            if(!(DirectoryContent_ThumbnailPictures.at(l).toUtf8()==".") && !(DirectoryContent_ThumbnailPictures.at(l).toUtf8()==".."))
+            {
+                QString Thumbfile_to_delete = _thumbfiledir+"/"+DirectoryContent_ThumbnailPictures.at(l);
+                QFile thumbfile(Thumbfile_to_delete);
+                thumbfile.remove();
+                qDebug() << "Thumbnail-Picture " << DirectoryContent_ThumbnailPictures.at(l).toUtf8() << " does not exist in the Database --> File removed.";
+
+            }
         }
     }
 
