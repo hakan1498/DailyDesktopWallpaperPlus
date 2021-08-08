@@ -84,7 +84,6 @@ private:
     void _init_ImageList();
     void _read_settings();
     void removeWallpaperFile();
-    void _setPictureRes();
     void _readResolution();
     void _get_values();
     void _display_details();

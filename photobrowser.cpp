@@ -29,9 +29,10 @@ PhotoBrowser::PhotoBrowser(QWidget *parent) :
     _get_specific_values=false;
     _get_values();
     _read_settings();
-    _setPictureRes();
 
     //Init image list
+    int _scaled_picture_width = 160;
+    int _scaled_picture_height = 90;
     ui->listView->setResizeMode(QListView::Adjust);
     ui->listView->setFlow(QListView::LeftToRight);
     ui->listView->setSpacing(15);
@@ -118,28 +119,6 @@ void PhotoBrowser::reject() {
 PhotoBrowser::~PhotoBrowser()
 {
     delete ui;
-}
-
-void PhotoBrowser::_setPictureRes() {
-    if(_resolution=="1024x768") {
-        _scaled_picture_width = (1024/100)*15;
-        _scaled_picture_height = (768/100)*15;
-    } else if(_resolution=="1280x720") {
-        _scaled_picture_width = (1280/100)*15;
-        _scaled_picture_height = (720/100)*15;
-    } else if(_resolution=="1366x768") {
-        _scaled_picture_width = (1366/100)*15;
-        _scaled_picture_height = (768/100)*15;
-    } else if(_resolution=="1920x1080") {
-        _scaled_picture_width = (1920/100)*9;
-        _scaled_picture_height = (1080/100)*9;
-    } else if(_resolution=="1920x1200") {
-        _scaled_picture_width = (1920/100)*9;
-        _scaled_picture_height = (1200/100)*9;
-    } else if(_resolution=="UHD") {
-        _scaled_picture_width = 172;
-        _scaled_picture_height = 97;
-    };
 }
 
 void PhotoBrowser::_read_settings()
